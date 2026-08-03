@@ -4,7 +4,7 @@
 	import PromptHeading from '$lib/components/PromptHeading.svelte';
 	import DirectoryList from '$lib/components/DirectoryList.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
-	import { formatDate, formatYear } from '$lib/content/format.js';
+	import { formatDate, formatEnd, formatYear } from '$lib/content/format.js';
 
 	let { data } = $props();
 
@@ -19,20 +19,20 @@
 	);
 
 	/*
-		Experience uses the same gutter as the projects listing, carrying the full
-		start date rather than just a year, with highlights beneath the role.
+		Experience uses the same gutter as the projects listing, but stacks the
+		date range across three lines so the column stays narrow:
 
-		Only the start date is shown. An end date on the current role would either
-		be blank or say "now", and on past roles the span matters less than the
-		order, which the listing already conveys.
+			May 2024
+			-
+			Present
 
-		Unlike projects these rows are not year-grouped: each carries its own month
-		and year, so blanking a repeated year would hide the month that
-		distinguishes two roles begun in the same one.
+		Unlike projects these rows are not year-grouped: each carries its own full
+		range, so blanking a repeated year would hide the month distinguishing two
+		roles begun in the same one.
 	*/
 	const experienceRows: DirectoryRow[] = $derived(
 		data.experience.map((role) => ({
-			gutter: formatDate(role.start),
+			gutter: [formatDate(role.start), '-', formatEnd(role.end)],
 			title: `${role.role} · ${role.company}`,
 			details: role.highlights
 		}))

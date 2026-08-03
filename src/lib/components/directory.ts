@@ -5,8 +5,19 @@
  * types, and both the component and every caller need this shape.
  */
 export type DirectoryRow = {
-	/** Left gutter, typically a year. Empty or omitted renders a blank gutter. */
-	gutter?: string;
+	/**
+	 * Left gutter. A single value for a project year; an array to stack lines,
+	 * which is how a role renders its date range:
+	 *
+	 * ```
+	 * May 2024
+	 * -
+	 * Present
+	 * ```
+	 *
+	 * Omitted or empty renders a blank gutter, keeping the column aligned.
+	 */
+	gutter?: string | string[];
 	title: string;
 	/** Optional second line beneath the title. */
 	summary?: string;

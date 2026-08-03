@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, formatYear } from './format.js';
+import { formatDate, formatEnd, formatYear } from './format.js';
 
 describe('formatDate', () => {
 	it('renders month and year when the source has a month', () => {
@@ -28,12 +28,25 @@ describe('formatYear', () => {
 	});
 });
 
+describe('formatEnd', () => {
+	it('says Present for a current role rather than inventing an end date', () => {
+		expect(formatEnd('present')).toBe('Present');
+	});
+
+	it('formats a concrete end date like any other', () => {
+		expect(formatEnd('2024-05')).toBe('May 2024');
+	});
+});
+
 describe('gutter widths', () => {
-	// The two listings share one column grid, so the gutter must fit the widest
-	// value either of them produces — an experience start date, not a year.
-	it('never produces a gutter value longer than "May 2024"', () => {
-		const values = ['2024-05', '2026-01', '2020-10', '2026'].map(formatDate);
-		const longest = Math.max(...values.map((v) => v.length));
+	// Both listings share one column grid, so the gutter must fit the widest
+	// value either produces. September is the longest month abbreviation only in
+	// full form; abbreviated, every month is three characters, so "May 2024" and
+	// "Present" bound the range.
+	it('never produces a gutter line longer than "May 2024"', () => {
+		const dates = ['2024-05', '2026-01', '2020-10', '2026-09', '2026'].map(formatDate);
+		const ends = ['present', '2024-05'].map(formatEnd);
+		const longest = Math.max(...[...dates, ...ends].map((v) => v.length));
 		expect(longest).toBeLessThanOrEqual('May 2024'.length);
 	});
 });

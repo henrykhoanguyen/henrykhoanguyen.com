@@ -23,6 +23,10 @@
 
 	const isExternal = (href?: string) => !!href && /^https?:\/\//.test(href);
 
+	/** Normalises the gutter to lines, so the template has one shape to render. */
+	const lines = (gutter: DirectoryRow['gutter']): string[] =>
+		gutter === undefined ? [] : Array.isArray(gutter) ? gutter : [gutter];
+
 	/*
 		The gutter is wide enough for `May 2024`, not just a year, so the projects
 		and experience listings share one column grid and align down the page. The
@@ -38,7 +42,16 @@
 	never drift apart.
 -->
 {#snippet cells(item: DirectoryRow, interactive: boolean)}
-	<span class="text-xs whitespace-nowrap text-phosphor-dim tabular-nums">{item.gutter ?? ''}</span>
+	<!--
+		A stacked gutter reads as a date range. `items-baseline` on the row aligns
+		the first line with the title, so extra lines hang below it rather than
+		pushing the title down.
+	-->
+	<span class="text-xs leading-snug whitespace-nowrap text-phosphor-dim tabular-nums">
+		{#each lines(item.gutter) as line, i (i)}
+			<span class="block">{line}</span>
+		{/each}
+	</span>
 
 	<span class="min-w-0">
 		<span

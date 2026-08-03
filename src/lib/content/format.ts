@@ -19,9 +19,17 @@ export function formatDate(value: string): string {
 /**
  * `2024-05` → `2024`.
  *
- * Projects show only a year in the gutter; experience shows a full start date
+ * Projects show only a year in the gutter; experience shows a full date range
  * there, which is why the gutter is sized for `May 2024` rather than `2024`.
  */
 export function formatYear(value: string): string {
 	return value.slice(0, 4);
+}
+
+/**
+ * The end of a date range. `present` becomes `Present` rather than a date,
+ * since a current role has no end to state.
+ */
+export function formatEnd(value: string): string {
+	return value === 'present' ? 'Present' : formatDate(value);
 }
