@@ -40,5 +40,10 @@
 </script>
 
 {#if line}
-	<p class="mb-6 text-xs text-phosphor-dim">{line}</p>
+	<!--
+		mb-1, not a section gap. A terminal prints its banner and then the prompt on
+		the very next line; anything larger reads as a separate block of page rather
+		than the line immediately before the prompt.
+	-->
+	<p class="mb-1 text-xs text-phosphor-dim">{line}</p>
 {/if}
