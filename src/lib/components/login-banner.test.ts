@@ -15,13 +15,19 @@ function fakeStorage(initial: Record<string, string> = {}) {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('formatLoginTime', () => {
-	it('matches the shape `date` prints', () => {
-		expect(formatLoginTime(new Date(2026, 7, 3, 9, 14, 22))).toBe('Mon Aug  3 09:14:22');
+	it('renders a full timestamp', () => {
+		expect(formatLoginTime(new Date(2026, 7, 3, 9, 14, 22))).toBe('Mon Aug 03 09:14:22');
 	});
 
-	it('space-pads a single-digit day, as a real terminal does', () => {
-		// Zero-padding here is the tell that gives away an imitation.
-		expect(formatLoginTime(new Date(2026, 7, 3, 9, 14, 22))).toContain('Aug  3');
+	it('zero-pads a single-digit day so columns line up', () => {
+		expect(formatLoginTime(new Date(2026, 7, 3, 9, 14, 22))).toContain('Aug 03');
+	});
+
+	it('keeps every timestamp the same width', () => {
+		const widths = [new Date(2026, 7, 3), new Date(2026, 11, 25)].map(
+			(d) => formatLoginTime(d).length
+		);
+		expect(new Set(widths).size).toBe(1);
 	});
 
 	it('does not pad a two-digit day', () => {
@@ -29,7 +35,7 @@ describe('formatLoginTime', () => {
 	});
 
 	it('zero-pads the clock', () => {
-		expect(formatLoginTime(new Date(2026, 0, 1, 5, 6, 7))).toBe('Thu Jan  1 05:06:07');
+		expect(formatLoginTime(new Date(2026, 0, 1, 5, 6, 7))).toBe('Thu Jan 01 05:06:07');
 	});
 });
 

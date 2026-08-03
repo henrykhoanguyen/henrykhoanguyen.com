@@ -5,13 +5,14 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 export const LAST_VISIT_KEY = 'henrykhoanguyen:last-visit';
 
 /**
- * A timestamp in the shape `date` prints: `Mon Aug  3 09:14:22`.
+ * A timestamp in the shape `Mon Aug 03 09:14:22`.
  *
- * Single-digit days are space-padded, not zero-padded, which is the detail that
- * separates a real terminal line from an imitation of one.
+ * Zero-padded rather than the space-padding `date` actually emits: the columns
+ * line up, which suits a listing-heavy site more than strict fidelity to macOS
+ * would.
  */
 export function formatLoginTime(date: Date): string {
-	const day = String(date.getDate()).padStart(2, ' ');
+	const day = String(date.getDate()).padStart(2, '0');
 	const time = [date.getHours(), date.getMinutes(), date.getSeconds()]
 		.map((n) => String(n).padStart(2, '0'))
 		.join(':');

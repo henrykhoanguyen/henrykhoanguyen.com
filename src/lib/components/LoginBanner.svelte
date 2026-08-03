@@ -17,20 +17,28 @@
 	 */
 	let { showSkipHint = false }: { showSkipHint?: boolean } = $props();
 
-	let line = $state<string | null>(null);
+	let banner = $state<string | null>(null);
+
+	/*
+		Assembled as one string rather than spans.
+
+		The hint used to be a separate <span> so `skip` could be brightened, and
+		its leading space was collapsed away in rendering — the same trap the `$`
+		prompts hit. One text node has no boundaries to lose a space at, and the
+		whole line is output anyway, so nothing in it wants a different colour.
+	*/
+	const line = $derived(
+		banner === null ? null : showSkipHint ? `${banner} — press any key to skip` : banner
+	);
 
 	onMount(() => {
 		const previous = readAndRecordVisit();
-		line = previous
-			? `Last login: ${formatLoginTime(previous)} on ttys001`
-			: `Welcome. First login: ${formatLoginTime(new Date())} on ttys001`;
+		banner = previous
+			? `Last login: ${formatLoginTime(previous)} on console`
+			: `Welcome. First login: ${formatLoginTime(new Date())} on console`;
 	});
 </script>
 
 {#if line}
-	<p class="mb-6 text-xs text-phosphor-dim">
-		{line}{#if showSkipHint}<span class="text-phosphor-dim"> — press any key to </span><span
-				class="text-phosphor">skip</span
-			>{/if}
-	</p>
+	<p class="mb-6 text-xs text-phosphor-dim">{line}</p>
 {/if}
