@@ -36,10 +36,19 @@ describe('keystrokeDelay', () => {
 		expect(keystrokeDelay('a', max)).toBeGreaterThan(keystrokeDelay('a', min));
 	});
 
-	it('stays within a range that finishes a short name in about a second', () => {
-		const slowest = keystrokeDelay(' ', max);
-		expect(keystrokeDelay('a', min)).toBeGreaterThanOrEqual(50);
-		expect(slowest).toBeLessThanOrEqual(200);
+	it('is brisk enough that the whole sequence does not outstay its welcome', () => {
+		// "Khoa Nguyen" is 11 characters; the boot sequence types four more runs
+		// after it. Anything slower than this and a visitor is waiting rather
+		// than watching.
+		expect(keystrokeDelay('a', min)).toBeGreaterThanOrEqual(20);
+		expect(keystrokeDelay('a', max)).toBeLessThanOrEqual(70);
+		expect(keystrokeDelay(' ', max)).toBeLessThanOrEqual(110);
+	});
+
+	it('types a short line in well under a second', () => {
+		const line = 'Backend engineer';
+		const total = [...line].reduce((sum, char) => sum + keystrokeDelay(char, () => 0.5), 0);
+		expect(total).toBeLessThan(900);
 	});
 
 	it('returns whole milliseconds', () => {

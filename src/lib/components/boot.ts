@@ -16,8 +16,11 @@ export const STEPS = [
 	'projectsCommand',
 	'projectsBody',
 	'whoamiCommand',
-	'name',
+	// Tagline before name, even though the name sits above it. The whole page
+	// assembles upwards, and typing the lower line first leaves the caret
+	// resting on the name — which is where you want a visitor's eye to stop.
 	'tagline',
+	'name',
 	'done'
 ] as const;
 

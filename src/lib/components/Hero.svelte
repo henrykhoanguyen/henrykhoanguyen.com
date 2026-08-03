@@ -26,7 +26,9 @@
 		onstep: (next: Step) => void;
 	} = $props();
 
-	const nameDone = $derived(reached(step, 'tagline'));
+	// The resting caret appears once the name is complete, which is the end of
+	// the whole sequence.
+	const nameDone = $derived(reached(step, 'done'));
 </script>
 
 <header class="mb-10">
@@ -35,7 +37,7 @@
 			text="whoami"
 			phase={stateFor(step, 'whoamiCommand')}
 			caret
-			onfinish={() => onstep('name')}
+			onfinish={() => onstep('tagline')}
 		/>
 	</p>
 
@@ -46,15 +48,20 @@
 				text={name}
 				phase={stateFor(step, 'name')}
 				caret
-				onfinish={() => onstep('tagline')}
-			/>{#if nameDone}<span class="caret" class:blinking={reached(step, 'done')}>▋</span>{/if}
+				onfinish={() => onstep('done')}
+			/>{#if nameDone}<span class="caret blinking">▋</span>{/if}
 		</span>
 	</h1>
 
 	<p class="mt-2 max-w-[52ch] text-sm leading-relaxed text-phosphor-dim">
 		<span class="sr-only">{tagline}</span>
 		<span aria-hidden="true">
-			<TypedText text={tagline} phase={stateFor(step, 'tagline')} onfinish={() => onstep('done')} />
+			<TypedText
+				text={tagline}
+				phase={stateFor(step, 'tagline')}
+				caret
+				onfinish={() => onstep('name')}
+			/>
 		</span>
 	</p>
 </header>

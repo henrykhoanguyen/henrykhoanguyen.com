@@ -14,8 +14,18 @@ describe('the sequence', () => {
 	});
 
 	it('types the name and tagline after the whoami prompt', () => {
+		expect(indexOf('whoamiCommand')).toBeLessThan(indexOf('tagline'));
 		expect(indexOf('whoamiCommand')).toBeLessThan(indexOf('name'));
-		expect(indexOf('name')).toBeLessThan(indexOf('tagline'));
+	});
+
+	it('types the tagline before the name, so the caret comes to rest on the name', () => {
+		// The name sits above the tagline on screen. Typing the lower line first
+		// continues the upward assembly and leaves the caret on the name.
+		expect(indexOf('tagline')).toBeLessThan(indexOf('name'));
+	});
+
+	it('finishes on the name', () => {
+		expect(indexOf('name')).toBe(indexOf(FINAL) - 1);
 	});
 
 	it('ends on the final step', () => {

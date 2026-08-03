@@ -41,7 +41,7 @@
 		Both timers go through `advance`, which is a no-op once the sequence has
 		been skipped — so pending timeouts cannot rewind a finished page.
 	*/
-	function revealThenContinue(bodyStep: Step, reveal = 240, thenNext = 420) {
+	function revealThenContinue(bodyStep: Step, reveal = 150, thenNext = 260) {
 		setTimeout(() => {
 			advance(bodyStep);
 			setTimeout(() => advance(next(bodyStep)), thenNext);

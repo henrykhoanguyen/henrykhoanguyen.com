@@ -19,6 +19,6 @@ export function typingSteps(text: string): string[] {
  * `random` is injected so tests are deterministic.
  */
 export function keystrokeDelay(previousChar: string, random: () => number = Math.random): number {
-	const base = previousChar === ' ' ? 130 : 55;
-	return Math.round(base + random() * 65);
+	const base = previousChar === ' ' ? 68 : 26;
+	return Math.round(base + random() * 30);
 }

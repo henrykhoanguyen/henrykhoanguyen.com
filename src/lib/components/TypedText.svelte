@@ -43,7 +43,7 @@
 			timer = setTimeout(step, keystrokeDelay(text[index - 1]));
 		};
 
-		timer = setTimeout(step, 90);
+		timer = setTimeout(step, 55);
 		return () => clearTimeout(timer);
 	});
 </script>
