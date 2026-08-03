@@ -15,7 +15,7 @@ import { expect, test, type Page } from '@playwright/test';
 const PAGES = [
 	'/',
 	'/projects',
-	'/experience',
+	'/experiences',
 	'/about',
 	'/projects/retail-data-platform',
 	'/projects/vehicle-data-streaming',
@@ -64,12 +64,14 @@ test.describe('home', () => {
 		await expect(experience.getByRole('listitem').first()).toContainText('Present');
 	});
 
-	test('summarises experience without highlights, and links to the full history', async ({
+	test('summarises experiences without highlights, and links to the full history', async ({
 		page
 	}) => {
 		await page.goto('/');
 		const experience = page.getByRole('list', { name: 'Work experience' });
-		await expect(experience).not.toContainText('Oracle-to-BigQuery');
+		// A one-line summary per role, but none of the detailed highlights.
+		await expect(experience).toContainText('Streaming Oracle into BigQuery');
+		await expect(experience).not.toContainText('Oracle-to-BigQuery streaming pipeline where none');
 		await expect(page.getByRole('link', { name: /see full history/ })).toBeVisible();
 	});
 
@@ -83,7 +85,7 @@ test.describe('home', () => {
 
 test.describe('experience', () => {
 	test('the full history carries highlights the home page omits', async ({ page }) => {
-		await page.goto('/experience');
+		await page.goto('/experiences');
 		await expect(page.getByRole('list', { name: 'Work experience' })).toContainText(
 			'Oracle-to-BigQuery'
 		);
@@ -92,7 +94,7 @@ test.describe('experience', () => {
 	test('is reachable from the home page summary', async ({ page }) => {
 		await page.goto('/');
 		await page.getByRole('link', { name: /see full history/ }).click();
-		await expect(page).toHaveURL('/experience');
+		await expect(page).toHaveURL('/experiences');
 	});
 });
 
@@ -102,8 +104,8 @@ test.describe('navigation', () => {
 		await page.getByRole('link', { name: 'projects', exact: true }).click();
 		await expect(page).toHaveURL('/projects');
 
-		await page.getByRole('link', { name: 'experience', exact: true }).click();
-		await expect(page).toHaveURL('/experience');
+		await page.getByRole('link', { name: 'experiences', exact: true }).click();
+		await expect(page).toHaveURL('/experiences');
 
 		await page.getByRole('link', { name: 'about', exact: true }).click();
 		await expect(page).toHaveURL('/about');

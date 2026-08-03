@@ -34,6 +34,7 @@ function role(overrides: Partial<Experience> = {}): Experience {
 		role: 'Engineer',
 		start: '2024-05',
 		end: 'present',
+		summary: 'Did things with computers.',
 		highlights: ['Did a thing.'],
 		stack: [],
 		slug: 'acme',

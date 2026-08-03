@@ -14,7 +14,7 @@
 	/*
 		The boot sequence.
 
-		The page assembles bottom-up: `cat ./experience` types first, then the
+		The page assembles bottom-up: `ls ./experiences` types first, then the
 		projects prompt appears above it and pushes it down, then the hero appears
 		above both. No positioning trick is involved — sections render in normal
 		document order and simply are not present yet, so each arrival shifts the
@@ -82,9 +82,9 @@
 	);
 
 	/*
-		Experience in summary: roles and dates, no highlights. The full history
-		lives at /experience — `ls` here, `cat` there, the same split the projects
-		listing uses.
+		Experiences in summary: role, a one-line summary, and dates — the same shape
+		as a project row above. Highlights are omitted; the full history lives at
+		/experiences. `ls` here, `cat` there, the split the projects listing uses.
 
 		The gutter stacks its date range, end above start, matching the direction
 		the listing runs: reading down the gutter moves backwards in time exactly
@@ -97,7 +97,8 @@
 	const experienceRows: DirectoryRow[] = $derived(
 		data.experience.map((role) => ({
 			gutter: [formatEnd(role.end), '-', formatDate(role.start)],
-			title: `${role.role} · ${role.company}`
+			title: `${role.role} · ${role.company}`,
+			summary: role.summary
 		}))
 	);
 </script>
@@ -142,7 +143,7 @@
 {#if reached(step, 'experienceCommand')}
 	<section class="mt-12 first:mt-0">
 		<PromptHeading
-			command="ls ./experience"
+			command="ls ./experiences"
 			phase={stateFor(step, 'experienceCommand')}
 			onfinish={() => revealThenContinue('experienceBody')}
 		/>
@@ -150,7 +151,7 @@
 		{#if reached(step, 'experienceBody')}
 			<DirectoryList items={experienceRows} ariaLabel="Work experience" />
 			<p class="mt-3 text-xs">
-				<a href={resolve('/experience')} class="text-phosphor-dim hover:text-phosphor">
+				<a href={resolve('/experiences')} class="text-phosphor-dim hover:text-phosphor">
 					see full history →
 				</a>
 			</p>

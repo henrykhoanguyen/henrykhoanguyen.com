@@ -18,17 +18,18 @@
 		data.experience.map((role) => ({
 			gutter: [formatEnd(role.end), '-', formatDate(role.start)],
 			title: `${role.role} · ${role.company}`,
+			summary: role.summary,
 			details: role.highlights
 		}))
 	);
 </script>
 
 <svelte:head>
-	<title>Experience — {data.name}</title>
+	<title>Experiences — {data.name}</title>
 	<meta name="description" content="Roles and work history for {data.name}." />
 </svelte:head>
 
-<PromptHeading command="cat ./experience" />
+<PromptHeading command="cat ./experiences" />
 <DirectoryList items={rows} ariaLabel="Work experience" />
 
 <p class="mt-8 text-xs">

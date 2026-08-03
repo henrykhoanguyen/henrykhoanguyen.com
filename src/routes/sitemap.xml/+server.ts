@@ -17,7 +17,7 @@ export const GET: RequestHandler = async () => {
 	const paths = [
 		'/',
 		'/projects',
-		'/experience',
+		'/experiences',
 		'/about',
 		...getCaseStudySlugs().map((s) => `/projects/${s}`)
 	];

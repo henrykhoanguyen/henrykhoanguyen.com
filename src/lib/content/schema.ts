@@ -38,6 +38,12 @@ export const experienceFrontmatter = z.object({
 	role: z.string().min(1),
 	start: isoDate,
 	end: z.union([isoDate, z.literal('present')]),
+	/**
+	 * One line, shown beneath the role in the home page summary — the same slot a
+	 * project's summary occupies. Keep it to a single line at 70ch or the summary
+	 * stops being skimmable, which is the only reason it exists.
+	 */
+	summary: z.string().min(1),
 	highlights: z.array(z.string().min(1)).min(1),
 	stack: z.array(z.string().min(1)).default([])
 });

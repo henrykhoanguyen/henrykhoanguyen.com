@@ -13,6 +13,7 @@ const validExperience = {
 	role: 'Software Engineer',
 	start: '2024-05',
 	end: 'present',
+	summary: 'Streaming pipelines and the services on top of them.',
 	highlights: ['Built the streaming pipeline.']
 };
 

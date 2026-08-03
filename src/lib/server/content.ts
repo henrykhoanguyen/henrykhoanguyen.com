@@ -43,7 +43,7 @@ const projectRaw = import.meta.glob('/src/content/projects/*.md', {
 	import: 'default'
 }) as Record<string, string>;
 
-const experienceMeta = import.meta.glob('/src/content/experience/*.md', {
+const experienceMeta = import.meta.glob('/src/content/experiences/*.md', {
 	eager: true,
 	import: 'metadata'
 }) as Record<string, unknown>;
@@ -75,7 +75,7 @@ function buildExperience(): Experience[] {
 	}));
 
 	if (roles.length === 0) {
-		throw new Error('No experience found in src/content/experience. An empty site is a bug.');
+		throw new Error('No experience found in src/content/experiences. An empty site is a bug.');
 	}
 
 	return sortExperience(roles);

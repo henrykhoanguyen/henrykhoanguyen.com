@@ -20,7 +20,7 @@ export const load: LayoutServerLoad = async () => {
 	const palette: PaletteItem[] = [
 		{ label: 'Home', href: '/', group: 'pages' },
 		{ label: 'Projects', href: '/projects', group: 'pages' },
-		{ label: 'Experience', href: '/experience', group: 'pages', keywords: 'work history roles' },
+		{ label: 'Experiences', href: '/experiences', group: 'pages', keywords: 'work history roles' },
 		{ label: 'About', href: '/about', group: 'pages' },
 		...getProjects().map((project) => ({
 			label: project.title,

@@ -3,6 +3,7 @@ company: H-E-B
 role: Software Engineer
 start: '2024-05'
 end: present
+summary: 'Streaming Oracle into BigQuery, and the services reading from it — pricing, promotions, forecasting.'
 highlights:
   - Built the Oracle-to-BigQuery streaming pipeline where none existed, replacing batch extraction that ran over an hour or failed outright. Source-side partitioning and incremental loads brought it to roughly 20 minutes with duplicate records eliminated.
   - Keep tables ranging from millions to hundreds of millions of rows in sync between operational and analytical systems.

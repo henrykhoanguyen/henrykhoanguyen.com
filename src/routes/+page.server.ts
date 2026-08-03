@@ -13,11 +13,12 @@ export const load: PageServerLoad = async () => ({
 		highlight into the prerendered HTML just to leave it undisplayed, which is
 		a few kilobytes of payload for nothing.
 	*/
-	experience: getExperience().map(({ slug, company, role, start, end }) => ({
+	experience: getExperience().map(({ slug, company, role, start, end, summary }) => ({
 		slug,
 		company,
 		role,
 		start,
-		end
+		end,
+		summary
 	}))
 });

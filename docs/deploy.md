@@ -147,6 +147,6 @@ sitemap, and the command palette automatically.
 
 ## Routine: changing a job
 
-Edit `src/content/experience/<company>.md`. To start a new role, add a file and
+Edit `src/content/experiences/<company>.md`. To start a new role, add a file and
 change the previous one's `end` from `present` to its final month. The listing
 reorders itself by start date.

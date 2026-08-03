@@ -10,7 +10,7 @@
 	*/
 	const links = [
 		{ href: resolve('/projects'), label: 'projects' },
-		{ href: resolve('/experience'), label: 'experience' },
+		{ href: resolve('/experiences'), label: 'experiences' },
 		{ href: resolve('/about'), label: 'about' }
 	];
 

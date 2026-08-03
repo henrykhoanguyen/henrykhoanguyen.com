@@ -3,6 +3,7 @@ company: General Motors
 role: Software Engineer
 start: '2021-01'
 end: '2024-05'
+summary: 'Java, Akka, and Apache Pulsar carrying telemetry for over 13 million vehicles.'
 highlights:
   - Worked on data streaming with Java, Akka, and Apache Pulsar, supporting communication for over 13 million vehicles.
   - Implemented Redis caching over Cassandra to cut latency across microservices, with invalidation to prevent stale reads.
