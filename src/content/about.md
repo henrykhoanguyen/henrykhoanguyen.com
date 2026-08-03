@@ -1,6 +1,6 @@
 ---
 name: Khoa Nguyen
-tagline: Backend engineer. I build streaming pipelines and the services that run on them.
+tagline: Backend engineer
 skills:
   - Java
   - Python
