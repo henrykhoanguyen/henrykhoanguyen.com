@@ -1,79 +1,62 @@
 <script lang="ts">
-	import { onMount, untrack } from 'svelte';
-	import { browser } from '$app/environment';
-	import { keystrokeDelay } from './typing.js';
+	import TypedText from './TypedText.svelte';
+	import type { Step } from './boot.js';
+	import { reached, stateFor } from './boot.js';
 
-	let { name, tagline }: { name: string; tagline: string } = $props();
+	/**
+	 * The hero, which arrives last.
+	 *
+	 * Unlike the listings — whose contents appear all at once when their command
+	 * finishes — the name and tagline type themselves out, because they are what
+	 * the visitor is here to read and deserve the beat.
+	 *
+	 * The complete name is always present in a visually-hidden span, so the
+	 * prerendered HTML carries it for crawlers and a screen reader announces it
+	 * once rather than following a mutating text node.
+	 */
+	let {
+		name,
+		tagline,
+		step,
+		onstep
+	}: {
+		name: string;
+		tagline: string;
+		step: Step;
+		onstep: (next: Step) => void;
+	} = $props();
 
-	/*
-		The name types itself out on load, as if someone were at the prompt.
-
-		Three constraints shape how this is built:
-
-		1. The prerendered HTML must contain the full name. A crawler that sees an
-		   empty <h1> learns nothing, and this is the single most important string
-		   on the site. The visually-hidden copy is always present and complete.
-		2. A screen reader should hear "Khoa Nguyen" once, not eleven times as the
-		   text node mutates. The animated copy is aria-hidden; the accessible name
-		   comes from the static copy beside it.
-		3. Reduced-motion users see the finished name immediately. Typing is
-		   decoration and carries no information they would lose.
-
-		`browser` seeds the initial value: during prerender it is false, so the
-		markup ships complete and works with JavaScript disabled. On the client it
-		is true, so the animated span starts empty and the typing begins from
-		nothing rather than flashing the full name first.
-	*/
-	// Seeded once on purpose. `name` comes from about.md and never changes at
-	// runtime, and re-seeding mid-animation would restart the typing. untrack
-	// states that intent rather than leaving it to look like an oversight.
-	let typed = $state(browser ? '' : untrack(() => name));
-	let finished = $state(!browser);
-
-	onMount(() => {
-		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-		if (reduced.matches) {
-			typed = name;
-			finished = true;
-			return;
-		}
-
-		let index = 0;
-		let timer: ReturnType<typeof setTimeout>;
-
-		const step = () => {
-			index += 1;
-			typed = name.slice(0, index);
-			if (index >= name.length) {
-				finished = true;
-				return;
-			}
-			timer = setTimeout(step, keystrokeDelay(name[index - 1]));
-		};
-
-		// A short beat before the first keystroke, as though the prompt were read
-		// before being answered.
-		timer = setTimeout(step, 320);
-		return () => clearTimeout(timer);
-	});
+	const nameDone = $derived(reached(step, 'tagline'));
 </script>
 
 <header class="mb-10">
-	<p class="mb-1.5 text-xs text-phosphor" aria-hidden="true">$ whoami</p>
+	<p class="mb-1.5 text-xs text-phosphor" aria-hidden="true">
+		<span>$ </span><TypedText
+			text="whoami"
+			phase={stateFor(step, 'whoamiCommand')}
+			caret
+			onfinish={() => onstep('name')}
+		/>
+	</p>
 
 	<h1 class="text-xl font-medium text-phosphor-text">
-		<!-- The real, complete name: what crawlers index and screen readers announce. -->
 		<span class="sr-only">{name}</span>
-		<!--
-			The visual copy. Hidden from assistive tech so the mutating text node is
-			never announced character by character.
-		-->
 		<span aria-hidden="true">
-			{typed}<span class="caret" class:blinking={finished}>▋</span>
+			<TypedText
+				text={name}
+				phase={stateFor(step, 'name')}
+				caret
+				onfinish={() => onstep('tagline')}
+			/>{#if nameDone}<span class="caret" class:blinking={reached(step, 'done')}>▋</span>{/if}
 		</span>
 	</h1>
 
-	<p class="mt-2 max-w-[52ch] text-sm leading-relaxed text-phosphor-dim">{tagline}</p>
+	<p class="mt-2 max-w-[52ch] text-sm leading-relaxed text-phosphor-dim">
+		<span class="sr-only">{tagline}</span>
+		<span aria-hidden="true">
+			<TypedText text={tagline} phase={stateFor(step, 'tagline')} onfinish={() => onstep('done')} />
+		</span>
+	</p>
 </header>
 
 <style>
@@ -82,19 +65,14 @@
 	}
 
 	/*
-		The caret holds steady while characters are arriving and only starts
-		blinking once typing stops — the same way a real terminal behaves, and it
-		keeps two competing motions off the screen at once.
+		The caret only blinks once everything has finished. While text is still
+		arriving it holds steady, the way a terminal does, which also keeps two
+		competing motions off the screen at once.
 	*/
 	.caret.blinking {
 		animation: blink 1.2s step-end infinite;
 	}
 
-	/*
-		Blinking is exactly the kind of motion that causes discomfort for people
-		sensitive to it, and it carries no information. The typing itself is
-		skipped in JavaScript for the same reason.
-	*/
 	@media (prefers-reduced-motion: reduce) {
 		.caret.blinking {
 			animation: none;
