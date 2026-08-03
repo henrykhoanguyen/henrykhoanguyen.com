@@ -7,19 +7,14 @@
 		Three links fit on the narrowest phone, so there is no drawer or hamburger.
 		A slide-out panel for three items adds a tap, a dependency, and a focus
 		trap to maintain, in exchange for hiding almost nothing.
-
-		Experience is a section of the home page rather than a route — there is not
-		enough of it to justify one — so it links to an anchor. From another page
-		that navigates home and scrolls; from home it just scrolls.
 	*/
 	const links = [
 		{ href: resolve('/projects'), label: 'projects' },
-		{ href: `${resolve('/')}#experience`, label: 'experience' },
+		{ href: resolve('/experience'), label: 'experience' },
 		{ href: resolve('/about'), label: 'about' }
 	];
 
-	const isCurrent = (href: string) =>
-		!href.includes('#') && page.url.pathname.startsWith(href) && href !== '/';
+	const isCurrent = (href: string) => page.url.pathname.startsWith(href);
 
 	// The shortcut hint is only meaningful where there is a keyboard, but the
 	// badge is a real button so a pointer can reach the palette too.

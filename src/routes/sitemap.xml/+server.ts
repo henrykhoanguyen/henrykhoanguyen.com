@@ -14,7 +14,13 @@ export const prerender = true;
  * near-duplicates of one page.
  */
 export const GET: RequestHandler = async () => {
-	const paths = ['/', '/projects', '/about', ...getCaseStudySlugs().map((s) => `/projects/${s}`)];
+	const paths = [
+		'/',
+		'/projects',
+		'/experience',
+		'/about',
+		...getCaseStudySlugs().map((s) => `/projects/${s}`)
+	];
 
 	const urls = paths
 		.map((path) => `\t<url>\n\t\t<loc>${absolute(path)}</loc>\n\t</url>`)

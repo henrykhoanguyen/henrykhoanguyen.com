@@ -82,19 +82,22 @@
 	);
 
 	/*
-		Experience shares the projects gutter but stacks its date range, end above
-		start — the same direction the listing runs, so reading down the gutter
-		moves backwards in time exactly as reading down the page does.
+		Experience in summary: roles and dates, no highlights. The full history
+		lives at /experience — `ls` here, `cat` there, the same split the projects
+		listing uses.
 
-		These rows are not year-grouped: each carries its own full range, so
+		The gutter stacks its date range, end above start, matching the direction
+		the listing runs: reading down the gutter moves backwards in time exactly
+		as reading down the page does.
+
+		These rows are not year-grouped. Each carries its own full range, so
 		blanking a repeated year would hide the month that distinguishes two roles
 		begun in the same one.
 	*/
 	const experienceRows: DirectoryRow[] = $derived(
 		data.experience.map((role) => ({
 			gutter: [formatEnd(role.end), '-', formatDate(role.start)],
-			title: `${role.role} · ${role.company}`,
-			details: role.highlights
+			title: `${role.role} · ${role.company}`
 		}))
 	);
 </script>
@@ -138,16 +141,19 @@
 
 {#if reached(step, 'experienceCommand')}
 	<section class="mt-12 first:mt-0">
-		<!-- The nav links here, so the id has to sit on something scroll-visible. -->
 		<PromptHeading
-			command="cat ./experience"
-			id="experience"
+			command="ls ./experience"
 			phase={stateFor(step, 'experienceCommand')}
 			onfinish={() => revealThenContinue('experienceBody')}
 		/>
 
 		{#if reached(step, 'experienceBody')}
 			<DirectoryList items={experienceRows} ariaLabel="Work experience" />
+			<p class="mt-3 text-xs">
+				<a href={resolve('/experience')} class="text-phosphor-dim hover:text-phosphor">
+					see full history →
+				</a>
+			</p>
 		{/if}
 	</section>
 {/if}

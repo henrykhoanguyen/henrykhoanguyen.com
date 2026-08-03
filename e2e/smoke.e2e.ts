@@ -15,6 +15,7 @@ import { expect, test, type Page } from '@playwright/test';
 const PAGES = [
 	'/',
 	'/projects',
+	'/experience',
 	'/about',
 	'/projects/retail-data-platform',
 	'/projects/vehicle-data-streaming',
@@ -63,6 +64,15 @@ test.describe('home', () => {
 		await expect(experience.getByRole('listitem').first()).toContainText('Present');
 	});
 
+	test('summarises experience without highlights, and links to the full history', async ({
+		page
+	}) => {
+		await page.goto('/');
+		const experience = page.getByRole('list', { name: 'Work experience' });
+		await expect(experience).not.toContainText('Oracle-to-BigQuery');
+		await expect(page.getByRole('link', { name: /see full history/ })).toBeVisible();
+	});
+
 	test('the typed name is announced once, not per character', async ({ page }) => {
 		await page.goto('/');
 		// The accessible name comes from the static copy, so it is complete
@@ -71,11 +81,29 @@ test.describe('home', () => {
 	});
 });
 
+test.describe('experience', () => {
+	test('the full history carries highlights the home page omits', async ({ page }) => {
+		await page.goto('/experience');
+		await expect(page.getByRole('list', { name: 'Work experience' })).toContainText(
+			'Oracle-to-BigQuery'
+		);
+	});
+
+	test('is reachable from the home page summary', async ({ page }) => {
+		await page.goto('/');
+		await page.getByRole('link', { name: /see full history/ }).click();
+		await expect(page).toHaveURL('/experience');
+	});
+});
+
 test.describe('navigation', () => {
 	test('header links reach both sections', async ({ page }) => {
 		await page.goto('/');
 		await page.getByRole('link', { name: 'projects', exact: true }).click();
 		await expect(page).toHaveURL('/projects');
+
+		await page.getByRole('link', { name: 'experience', exact: true }).click();
+		await expect(page).toHaveURL('/experience');
 
 		await page.getByRole('link', { name: 'about', exact: true }).click();
 		await expect(page).toHaveURL('/about');
