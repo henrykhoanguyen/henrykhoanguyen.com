@@ -239,22 +239,32 @@ Sourced from the LinkedIn profile export (authoritative for dates and titles), t
 
 **Experience**
 
-- H-E-B, Austin TX — Software Engineer, May 2024 – present. Current role. Data streaming continuing the GM line of work, backend services and APIs, and warehouse-side data work in BigQuery and SQL. Specific outcome bullets to be supplied by Khoa; the LinkedIn entry carries none.
+- H-E-B, Austin TX — Software Engineer, May 2024 – present. Current role.
+  - Built the Oracle-to-BigQuery streaming pipeline where none existed, on Pub/Sub. Replaced batch extraction that ran over an hour or failed outright; added source-side partitioning and incremental loads, cutting runtime to roughly 20 minutes and eliminating duplicate records.
+  - Keeps tables ranging from millions to hundreds of millions of rows in sync between operational and analytical systems.
+  - Owns backend services for products, pricing, promotions, and demand forecasting, used by store and product managers across every H-E-B store in Texas.
+  - Cut service response times from minutes to 20–50ms by designing precomputed BigQuery views and tables in place of on-demand queries.
+
+  Request volume — hundreds per day — is deliberately omitted. It is a weak figure that invites the wrong question, and it misstates why the work matters: the services are significant for their decision scope and latency, not their throughput. Scale is expressed through row counts and store coverage instead.
 - General Motors, Austin TX — Software Engineer, Strategic Incubation Office, Jan 2021 – May 2024. Java, Akka, and Apache Pulsar streaming supporting communication for over 13 million vehicles. Redis and Cassandra to cut microservice latency. Azure CI/CD with Kubernetes and Docker, +5% delivery efficiency. Spring Boot streaming features for cross-functional testing, −25% time to production readiness. Ubuntu Linux infrastructure build and migration. Incident-handling training contributing to four nines.
 - UCI Medical Center, Irvine CA — Web Developer, Oct 2020 – Jan 2021. Radiology department site on PHP and WordPress; A/B tested layouts.
 - UC Irvine — BS Computer Science.
 
 De Anza College CS Lab Assistant (2015–2018) is omitted. It predates the professional record by six years and dilutes a recruiter-facing timeline.
 
-The resume PDF and LinkedIn disagree on graduation timing (March 2020 versus 2017–2019). Khoa confirms the correct value before it is published; the site states one date.
+Graduation resolved: coursework completed late 2019, ceremony March 2020. The site states 2019 — degree completion is the conventional date and it matches LinkedIn, which is the document recruiters click through to.
 
-**Projects at launch** — all three are written case studies. Two have no repo link.
+**Projects at launch** — four written case studies. Three have no repo link. Ordered as they appear on the site, current work first.
 
 1. *Vehicle data streaming platform* (GM) — Java, Akka, and Apache Pulsar carrying telemetry for 13 million vehicles. Redis in front of Cassandra to cut latency. Metrics, dashboards, and alerting supporting four-nines operation.
 2. *Spring Boot streaming test harness* (GM) — UDP streaming and Avro-over-Pulsar extending end-to-end test coverage across services. Azure CI/CD with Docker into Kubernetes. 500,000 messages per second with configurable throughput; cut time to production readiness 25%.
 3. *German Football Data Analyzer* (personal) — the one public repo worth keeping. Angular, Node, Express, MongoDB, CSV parsing into a REST API. The sole open-source entry.
 
-A fourth case study from H-E-B is strongly desirable, since the two strongest entries are otherwise from a previous employer and a recruiter reads that as work that stopped in 2024. The BigQuery and SQL work is the best candidate: it is the only warehouse-side material in the inventory, and it covers the "data engineering" half of the target roles that the GM streaming work does not. Pending material from Khoa.
+4. *Retail data platform* (H-E-B) — **the lead case study.** Oracle to BigQuery on Pub/Sub where no streaming path existed, feeding services for products, pricing, promotions, and forecasting across every Texas store. Two-act narrative: get the data across reliably (batch jobs exceeding an hour or failing, resolved through source-side partitioning and incremental loads to roughly 20 minutes with duplicates eliminated), then serve it fast (precomputed views and tables replacing on-demand queries, minutes to 20–50ms).
+
+This is the only warehouse-side material in the inventory and covers the data engineering half of the target roles that the GM streaming work does not reach. It is also current, which matters — without it the strongest work on the site ends in 2024.
+
+It carries the single best number in the whole inventory. Minutes to 20–50ms is roughly four orders of magnitude and outperforms anything in the GM material. It should lead the case study and appear in the summary line, not be buried in the body.
 
 ## Positioning
 
@@ -282,14 +292,16 @@ This applies with extra care to H-E-B, the current employer, where nothing has b
 
 Ships with three written case studies, since the strongest material has nothing to link to:
 
-- Three project files, each with a complete body. Two carry no `repo` or `demo`.
+- Four project files, each with a complete body. Three carry no `repo` or `demo`.
 - `about.md` complete, including tagline, skills, and footer links.
 - Experience files for H-E-B, General Motors, and UCI Medical Center.
 - `_redirects` mapping the old resume PDF path to LinkedIn.
 
 Writing the case studies is the critical path, not the build. Further projects are added afterward, one file at a time, with no code changes.
 
-One content blocker must clear before launch: H-E-B role bullets, since the current position cannot ship empty. The fourth H-E-B case study is not a blocker but should follow quickly.
+All content blockers are cleared. Every fact needed to write the site now exists in this document.
+
+Khoa reviews the H-E-B case study and experience bullets before deploy. He is the only person who can judge what is publishable about a current employer, and the draft was written from notes he supplied under an explicit request to stay vague.
 
 ## Deferred
 
