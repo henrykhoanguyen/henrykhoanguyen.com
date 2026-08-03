@@ -108,8 +108,17 @@
 	<Hero name={data.about.name} tagline={data.about.tagline} {step} onstep={advance} />
 {/if}
 
+<!--
+	Section spacing lives here rather than on PromptHeading.
+
+	The heading carries `mt-12 first:mt-0`, which works when headings are siblings
+	on a page — as they are on /about. Inside a <section> every heading is a first
+	child, so that rule zeroes all of them and the sections collide. The wrapper
+	owns the gap instead, and `first:mt-0` on the wrapper keeps whichever section
+	is currently topmost from being pushed off the header.
+-->
 {#if reached(step, 'projectsCommand')}
-	<section>
+	<section class="mt-12 first:mt-0">
 		<PromptHeading
 			command="ls ./projects --featured"
 			phase={stateFor(step, 'projectsCommand')}
@@ -128,7 +137,7 @@
 {/if}
 
 {#if reached(step, 'experienceCommand')}
-	<section>
+	<section class="mt-12 first:mt-0">
 		<!-- The nav links here, so the id has to sit on something scroll-visible. -->
 		<PromptHeading
 			command="cat ./experience"
