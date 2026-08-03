@@ -7,6 +7,7 @@
 	import DirectoryList from '$lib/components/DirectoryList.svelte';
 	import MoreLink from '$lib/components/MoreLink.svelte';
 	import SkillFilter from '$lib/components/SkillFilter.svelte';
+	import Hint from '$lib/components/Hint.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
 	import { FINAL, next, reached, stateFor, type Step } from '$lib/components/boot.js';
 	import { experienceRow, projectRow } from '$lib/content/rows.js';
@@ -128,6 +129,20 @@
 	<meta name="description" content={data.about.tagline} />
 </svelte:head>
 
+<!--
+	The skip hint lives at the top of the page and only while the sequence is
+	running. It has to be visible from the first frame — that is the moment it is
+	useful — and a hint for something that has already finished is just clutter,
+	so it leaves when the animation does.
+
+	It never appears in the prerendered HTML: the sequence starts finished during
+	prerender, so nobody with JavaScript disabled is told to skip an animation
+	that is not playing.
+-->
+{#if step !== FINAL}
+	<Hint margin="mb-6">press any key, scroll, or click anywhere to skip the animation</Hint>
+{/if}
+
 {#if reached(step, 'whoamiCommand')}
 	<Hero name={data.about.name} tagline={data.about.tagline} {step} onstep={advance} />
 {/if}
@@ -180,6 +195,14 @@
 		/>
 
 		{#if reached(step, 'skillsBody')}
+			<Hint>
+				{#if pinned}
+					hover or click a skill to highlight where it was used — click it again to clear
+				{:else}
+					hover or click a skill to highlight where it was used
+				{/if}
+			</Hint>
+
 			<SkillFilter
 				skills={data.skills}
 				active={activeSkill}
@@ -192,14 +215,6 @@
 			<p class="sr-only" aria-live="polite">
 				{#if activeSkill}
 					{matchCount} entries use {activeSkill}
-				{/if}
-			</p>
-
-			<p class="mt-3 text-xs text-phosphor-dim">
-				{#if pinned}
-					hover or click a skill to highlight where it was used — click again to clear
-				{:else}
-					hover or click a skill to highlight where it was used
 				{/if}
 			</p>
 		{/if}
