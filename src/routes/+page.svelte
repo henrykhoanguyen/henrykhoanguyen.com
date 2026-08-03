@@ -8,11 +8,11 @@
 	import MoreLink from '$lib/components/MoreLink.svelte';
 	import SkillFilter from '$lib/components/SkillFilter.svelte';
 	import Hint from '$lib/components/Hint.svelte';
-	import LoginBanner from '$lib/components/LoginBanner.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
 	import { FINAL, next, reached, stateFor, type Step } from '$lib/components/boot.js';
 	import { experienceRow, projectRow } from '$lib/content/rows.js';
 	import { isDeadSpaceClick } from '$lib/components/outside-click.js';
+	import { boot } from '$lib/components/boot-state.svelte.js';
 
 	let { data } = $props();
 
@@ -52,6 +52,16 @@
 			setTimeout(() => advance(next(bodyStep)), thenNext);
 		}, reveal);
 	}
+
+	/*
+		The banner lives in the layout, above the nav, so it needs to be told when
+		the sequence is running. Cleared on unmount so navigating away mid-animation
+		does not leave a skip hint stranded on another page.
+	*/
+	$effect(() => {
+		boot.set(step !== FINAL);
+		return () => boot.set(false);
+	});
 
 	onMount(() => {
 		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -129,18 +139,6 @@
 	<title>{data.about.name} — {data.about.tagline}</title>
 	<meta name="description" content={data.about.tagline} />
 </svelte:head>
-
-<!--
-	The banner a terminal prints before its first prompt, and the carrier for the
-	skip hint.
-
-	A note floating above the prompt reads as a web overlay pasted onto a
-	terminal; a login banner reads as the terminal itself. It stays after the
-	sequence finishes — a terminal does not erase its own startup output — and
-	only the skip clause drops away, since a hint for something already over is
-	just clutter.
--->
-<LoginBanner showSkipHint={step !== FINAL} />
 
 {#if reached(step, 'whoamiCommand')}
 	<Hero name={data.about.name} tagline={data.about.tagline} {step} onstep={advance} />

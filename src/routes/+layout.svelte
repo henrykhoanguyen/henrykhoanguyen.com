@@ -4,6 +4,8 @@
 	import SiteHeader from '$lib/components/SiteHeader.svelte';
 	import SiteFooter from '$lib/components/SiteFooter.svelte';
 	import CommandPalette from '$lib/components/CommandPalette.svelte';
+	import LoginBanner from '$lib/components/LoginBanner.svelte';
+	import { boot } from '$lib/components/boot-state.svelte.js';
 	import { page } from '$app/state';
 	import { absolute } from '$lib/site.js';
 
@@ -41,6 +43,12 @@
 </a>
 
 <div class="mx-auto min-h-dvh max-w-2xl px-5 py-10 sm:px-8">
+	<!--
+		The session banner precedes the prompt it belongs to, which is why it sits
+		above the nav rather than inside the page. Only the home page animates, so
+		only there does it carry the skip hint.
+	-->
+	<LoginBanner showSkipHint={boot.animating} />
 	<SiteHeader />
 	<main id="main">
 		{@render children()}

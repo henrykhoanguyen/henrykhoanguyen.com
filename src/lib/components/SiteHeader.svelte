@@ -22,7 +22,7 @@
 		typeof navigator !== 'undefined' && /mac|iphone|ipad/i.test(navigator.platform ?? '');
 </script>
 
-<header class="mb-6 flex items-baseline justify-between gap-4 text-xs">
+<header class="mb-12 flex items-baseline justify-between gap-4 text-xs">
 	<a href={resolve('/')} class="text-phosphor no-underline hover:underline">~/henrykhoanguyen</a>
 
 	<div class="flex items-baseline gap-3 sm:gap-4">
