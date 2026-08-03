@@ -14,23 +14,34 @@ All commands assume `npm`. Substitute `pnpm dlx` / `bunx` for `npx` if preferred
 Create the project and wire up tooling. No custom code.
 
 ```
-npx sv create . --add tailwindcss
-npx sv add mdsvex eslint prettier vitest playwright sveltekit-adapter
-npx shadcn-svelte@latest init
+npx sv create . --template minimal --types ts
+npx sv add tailwindcss="plugins:typography" mdsvex eslint prettier playwright \
+  vitest="usages:unit" sveltekit-adapter="adapter:static" --install npm
+npm i -D shiki
 ```
 
-Choose `adapter-static` when `sv add sveltekit-adapter` prompts. At the `shadcn-svelte init` prompts, accept the defaults — note that current versions place the global stylesheet at `src/routes/layout.css`, not `src/app.css`; whatever the CLI reports is the file Phase 3 edits.
+Every add-on option must be set explicitly or `sv add` drops into interactive prompts. `sveltekit-adapter="adapter:static"` alone is correct — passing `cfTarget:none` is rejected as incompatible.
 
-Configure `svelte.config.js`:
+**There is no `svelte.config.js`.** Current SvelteKit puts the whole configuration inside `vite.config.ts`, and `sv add mdsvex` plus `sv add sveltekit-adapter` already wire `extensions: ['.svelte', '.svx', '.md']`, the mdsvex preprocessor, and `adapter-static`. The remaining edits to `vite.config.ts` are:
 
-- `extensions: ['.svelte', '.svx', '.md']` so mdsvex compiles `.md`
-- mdsvex `extensions: ['.md']`
-- mdsvex `highlight` wired to Shiki, theme deferred to Phase 2
-- `adapter-static` with `fallback: undefined` (fully prerendered, no SPA fallback)
+- `adapter({ fallback: undefined, strict: true })` — fully prerendered, no SPA fallback
+- mdsvex `highlight.highlighter` wired to Shiki using the phosphor theme
 
-Add `src/routes/+layout.ts` containing `export const prerender = true`.
+Add `src/routes/+layout.ts` with `export const prerender = true` and `trailingSlash = 'never'`.
 
-**Done when:** `npm run dev` serves the default page, `npm run build` succeeds and emits `build/`, and `npm run check` is clean.
+Delete the generated `src/routes/demo/` and `src/lib/vitest-examples/`.
+
+### shadcn-svelte init runs on Khoa's machine
+
+`shadcn-svelte init` writes `components.json` — already committed — and then fetches from `shadcn-svelte.com/registry`, which the build sandbox cannot reach. `components.json` is valid and complete, so the remaining work is a local run:
+
+```
+npx shadcn-svelte@latest init      # answer the preset prompt, accept defaults
+```
+
+The CLI will not re-prompt for aliases or CSS path; those are already recorded. Note `--preset` takes a generated ID from shadcn-svelte.com/create, not a name — any preset is fine, since Phase 2 replaces the theme entirely.
+
+**Done when:** `npm run build` emits `build/`, `npm run check` reports zero errors, `npx prettier --check .` is clean, and a `.md` route renders with Shiki-highlighted code in the phosphor colours.
 
 ---
 
@@ -106,7 +117,7 @@ Shiki gets a custom theme built from the same five token values rather than an o
 ## Phase 4 — Interactive pieces
 
 - Stack filter on `/projects`. Rendered in character as a `$ filter --stack` line with inline mono toggles. Selecting dims non-matching rows rather than removing them, so the year gutter does not reflow. State lives in the URL as `?stack=python`; with no query parameter the full list renders, so the page works without JavaScript.
-- `npx shadcn-svelte@latest add command sheet button tooltip` — then restyle each to the green scale. Their defaults are a starting point, not the target.
+- `npx shadcn-svelte@latest add command sheet button tooltip` — **must be run on Khoa's machine**; the build sandbox cannot reach the shadcn registry. Then restyle each to the green scale. Their defaults are a starting point, not the target.
 - Command palette bound to `⌘K` / `Ctrl+K`, listing all projects and the top-level routes.
 - Sheet for mobile navigation.
 
