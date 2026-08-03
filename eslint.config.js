@@ -34,8 +34,17 @@ export default defineConfig(
 		}
 	},
 	{
-		// Override or add rule settings here, such as:
-		// 'svelte/button-has-type': 'error'
-		rules: {}
+		/*
+		 * `no-navigation-without-resolve` guards against forgetting the `base`
+		 * path on sub-path deployments. Every internal link on this site does use
+		 * resolve(); these two components are the exception because their hrefs
+		 * arrive as content data and may be absolute URLs — a project row links
+		 * either to its case study or straight to GitHub, and footer links are
+		 * external or mailto:. resolve() cannot be applied to a value that might
+		 * already be absolute, so the rule is switched off here rather than
+		 * worked around at each call site.
+		 */
+		files: ['src/lib/components/DirectoryList.svelte', 'src/lib/components/SiteFooter.svelte'],
+		rules: { 'svelte/no-navigation-without-resolve': 'off' }
 	}
 );

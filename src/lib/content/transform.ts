@@ -85,3 +85,23 @@ export function filterByStack(projects: Project[], tag: string | null): Project[
 	if (!tag) return projects;
 	return projects.filter((p) => p.stack.includes(tag));
 }
+
+/**
+ * URL-safe form of a stack tag: `Pub/Sub` → `pub-sub`, `Node.js` → `node-js`.
+ *
+ * Tags are written for humans in frontmatter and contain slashes, dots, and
+ * spaces, none of which survive a path segment intact. Filter pages are real
+ * prerendered routes rather than query strings — a query string cannot be
+ * prerendered — so every tag needs a stable slug.
+ */
+export function tagSlug(tag: string): string {
+	return tag
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '');
+}
+
+/** Resolves a slug back to its original tag, or null if no tag matches. */
+export function tagFromSlug(tags: string[], slug: string): string | null {
+	return tags.find((tag) => tagSlug(tag) === slug) ?? null;
+}

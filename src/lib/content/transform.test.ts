@@ -8,7 +8,9 @@ import {
 	slugFromPath,
 	sortExperience,
 	sortProjects,
-	stripFrontmatter
+	stripFrontmatter,
+	tagFromSlug,
+	tagSlug
 } from './transform.js';
 import type { Experience, Project, ProjectFrontmatter } from './schema.js';
 
@@ -208,5 +210,49 @@ describe('filterByStack', () => {
 
 	it('returns nothing for a tag no project carries', () => {
 		expect(filterByStack(projects, 'rust')).toEqual([]);
+	});
+});
+
+describe('tagSlug', () => {
+	// Tags are written for humans and land in URL path segments, so the
+	// characters that break paths are the ones worth asserting.
+	it.each([
+		['Java', 'java'],
+		['Pub/Sub', 'pub-sub'],
+		['Node.js', 'node-js'],
+		['Apache Pulsar', 'apache-pulsar'],
+		['Azure DevOps', 'azure-devops'],
+		['C++', 'c'],
+		['  spaced  ', 'spaced']
+	])('turns %s into %s', (tag, slug) => {
+		expect(tagSlug(tag)).toBe(slug);
+	});
+
+	it('produces slugs safe to place in a URL path', () => {
+		const tags = ['Pub/Sub', 'Node.js', 'Spring Boot', 'C#'];
+		for (const slug of tags.map(tagSlug)) {
+			expect(slug).toMatch(/^[a-z0-9-]+$/);
+		}
+	});
+
+	it('is idempotent, so slugging a slug changes nothing', () => {
+		expect(tagSlug(tagSlug('Pub/Sub'))).toBe(tagSlug('Pub/Sub'));
+	});
+});
+
+describe('tagFromSlug', () => {
+	const tags = ['Java', 'Pub/Sub', 'Node.js'];
+
+	it('resolves a slug back to its original tag', () => {
+		expect(tagFromSlug(tags, 'pub-sub')).toBe('Pub/Sub');
+	});
+
+	it('returns null for a slug no tag produces', () => {
+		expect(tagFromSlug(tags, 'rust')).toBeNull();
+	});
+
+	it('round-trips every tag', () => {
+		const broken = tags.filter((tag) => tagFromSlug(tags, tagSlug(tag)) !== tag);
+		expect(broken).toEqual([]);
 	});
 });
