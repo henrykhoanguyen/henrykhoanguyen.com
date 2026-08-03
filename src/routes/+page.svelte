@@ -5,6 +5,7 @@
 	import Hero from '$lib/components/Hero.svelte';
 	import PromptHeading from '$lib/components/PromptHeading.svelte';
 	import DirectoryList from '$lib/components/DirectoryList.svelte';
+	import MoreLink from '$lib/components/MoreLink.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
 	import { FINAL, next, reached, stateFor, type Step } from '$lib/components/boot.js';
 	import { formatDate, formatEnd, formatYear } from '$lib/content/format.js';
@@ -131,11 +132,7 @@
 
 		{#if reached(step, 'projectsBody')}
 			<DirectoryList items={projectRows} ariaLabel="Featured projects" />
-			<p class="mt-3 text-xs">
-				<a href={resolve('/projects')} class="text-phosphor-dim hover:text-phosphor">
-					see all projects →
-				</a>
-			</p>
+			<MoreLink href={resolve('/projects')}>see all projects →</MoreLink>
 		{/if}
 	</section>
 {/if}
@@ -150,11 +147,7 @@
 
 		{#if reached(step, 'experienceBody')}
 			<DirectoryList items={experienceRows} ariaLabel="Work experience" />
-			<p class="mt-3 text-xs">
-				<a href={resolve('/experiences')} class="text-phosphor-dim hover:text-phosphor">
-					see full history →
-				</a>
-			</p>
+			<MoreLink href={resolve('/experiences')}>see full history →</MoreLink>
 		{/if}
 	</section>
 {/if}

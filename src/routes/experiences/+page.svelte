@@ -1,6 +1,7 @@
 <script lang="ts">
 	import PromptHeading from '$lib/components/PromptHeading.svelte';
 	import DirectoryList from '$lib/components/DirectoryList.svelte';
+	import MoreLink from '$lib/components/MoreLink.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
 	import { formatDate, formatEnd } from '$lib/content/format.js';
 
@@ -32,8 +33,6 @@
 <PromptHeading command="cat ./experiences" />
 <DirectoryList items={rows} ariaLabel="Work experience" />
 
-<p class="mt-8 text-xs">
-	<a href="https://www.linkedin.com/in/henrykhoanguyen/" target="_blank" rel="noopener noreferrer">
-		full history on linkedin ↗
-	</a>
-</p>
+<MoreLink href="https://www.linkedin.com/in/henrykhoanguyen/" margin="mt-8">
+	full history on linkedin ↗
+</MoreLink>

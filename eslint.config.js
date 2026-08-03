@@ -51,7 +51,10 @@ export default defineConfig(
 			// SiteHeader does call resolve(), but appends a #hash to the result for
 			// the experience anchor. The rule only recognises a bare resolve() call,
 			// not one inside a template literal.
-			'src/lib/components/SiteHeader.svelte'
+			'src/lib/components/SiteHeader.svelte',
+			// MoreLink takes an href that is internal or external depending on the
+			// caller; internal ones are resolved before being passed in.
+			'src/lib/components/MoreLink.svelte'
 		],
 		rules: { 'svelte/no-navigation-without-resolve': 'off' }
 	}
