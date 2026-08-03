@@ -1,9 +1,19 @@
 <!doctype html>
-<html lang="en">
+<!--
+	`class="dark"` is fixed rather than toggled. The site is dark only, and
+	shadcn components ship `dark:` variants that need the class to be present
+	for their dark styling to apply at all.
+
+	The inline background colour matches --bg and exists so the page never
+	flashes white before the stylesheet arrives.
+-->
+<html lang="en" class="dark" style="background-color: #0a0f0a">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<meta name="color-scheme" content="dark" />
+		<meta name="theme-color" content="#0a0f0a" />
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

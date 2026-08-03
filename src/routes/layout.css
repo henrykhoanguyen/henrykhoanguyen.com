@@ -6,77 +6,75 @@
 @custom-variant dark (&:is(.dark *));
 @plugin '@tailwindcss/typography';
 
+/*
+ * Green phosphor.
+ *
+ * Two layers. First the raw scale — five values, mirroring src/lib/styles/tokens.ts,
+ * which is where the contrast tests read them from. Then shadcn's semantic tokens
+ * remapped onto that scale, so Command, Sheet, Button and friends inherit the
+ * aesthetic instead of each needing to be restyled by hand.
+ *
+ * Dark only. Green phosphor has no honest light-mode equivalent, so there is no
+ * toggle and :root carries the dark values directly. Measured contrast against
+ * the background: bright 13.5:1, primary 16.9:1, dim 6.0:1 — all clear of AA.
+ */
 :root {
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.87 0 0);
-	--chart-2: oklch(0.556 0 0);
-	--chart-3: oklch(0.439 0 0);
-	--chart-4: oklch(0.371 0 0);
-	--chart-5: oklch(0.269 0 0);
-	--radius: 0.625rem;
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
-}
+	--bg: #0a0f0a;
+	--green-bright: #3bf75e;
+	--green-text: #d3f9d8;
+	--green-dim: #6b9a72;
+	--rule: #1e3a22;
 
-.dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.87 0 0);
-	--chart-2: oklch(0.556 0 0);
-	--chart-3: oklch(0.439 0 0);
-	--chart-4: oklch(0.371 0 0);
-	--chart-5: oklch(0.269 0 0);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	/* Two surfaces lifted off the background, for popovers and the palette. */
+	--surface-1: #0e150f;
+	--surface-2: #121c14;
+
+	--background: var(--bg);
+	--foreground: var(--green-text);
+	--card: var(--surface-1);
+	--card-foreground: var(--green-text);
+	--popover: var(--surface-1);
+	--popover-foreground: var(--green-text);
+	--primary: var(--green-bright);
+	--primary-foreground: var(--bg);
+	--secondary: var(--surface-2);
+	--secondary-foreground: var(--green-text);
+	--muted: var(--surface-2);
+	--muted-foreground: var(--green-dim);
+	--accent: var(--surface-2);
+	--accent-foreground: var(--green-bright);
+	--destructive: #f75e3b;
+	--border: var(--rule);
+	--input: var(--rule);
+	--ring: var(--green-bright);
+	--radius: 0.25rem;
+
+	--sidebar: var(--surface-1);
+	--sidebar-foreground: var(--green-text);
+	--sidebar-primary: var(--green-bright);
+	--sidebar-primary-foreground: var(--bg);
+	--sidebar-accent: var(--surface-2);
+	--sidebar-accent-foreground: var(--green-bright);
+	--sidebar-border: var(--rule);
+	--sidebar-ring: var(--green-bright);
+
+	--chart-1: var(--green-bright);
+	--chart-2: var(--green-text);
+	--chart-3: var(--green-dim);
+	--chart-4: var(--rule);
+	--chart-5: var(--surface-2);
 }
 
 @theme inline {
-	--font-mono: 'JetBrains Mono Variable', monospace;
+	--font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+	--font-sans: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+	--color-phosphor: var(--green-bright);
+	--color-phosphor-text: var(--green-text);
+	--color-phosphor-dim: var(--green-dim);
+	--color-phosphor-rule: var(--rule);
+	--color-phosphor-bg: var(--bg);
+
 	--color-sidebar-ring: var(--sidebar-ring);
 	--color-sidebar-border: var(--sidebar-border);
 	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -121,10 +119,116 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
-	body {
-		@apply bg-background text-foreground;
-	}
+
 	html {
 		@apply font-mono;
+		background-color: var(--bg);
+		/* Selection in the accent, as a terminal would. */
+		&::selection {
+			background-color: var(--green-bright);
+			color: var(--bg);
+		}
+	}
+
+	body {
+		@apply bg-background text-foreground;
+		font-size: 15px;
+		line-height: 1.75;
+		-webkit-font-smoothing: antialiased;
+	}
+
+	::selection {
+		background-color: var(--green-bright);
+		color: var(--bg);
+	}
+
+	a {
+		color: var(--green-bright);
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
+		text-underline-offset: 0.25em;
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--green-bright);
+		outline-offset: 2px;
+	}
+}
+
+/*
+ * Case study prose.
+ *
+ * Monospace throughout, including body copy — a deliberate choice for the
+ * terminal aesthetic. 70ch and a 1.75 line-height are what keep that readable
+ * at length; without them, mono prose gets tiring within a few paragraphs.
+ *
+ * The font is a single variable, so switching bodies to a sans face later is a
+ * one-line change rather than a rewrite.
+ */
+@utility prose-phosphor {
+	--tw-prose-body: var(--green-text);
+	--tw-prose-headings: var(--green-text);
+	--tw-prose-lead: var(--green-dim);
+	--tw-prose-links: var(--green-bright);
+	--tw-prose-bold: var(--green-text);
+	--tw-prose-counters: var(--green-dim);
+	--tw-prose-bullets: var(--green-dim);
+	--tw-prose-hr: var(--rule);
+	--tw-prose-quotes: var(--green-dim);
+	--tw-prose-quote-borders: var(--rule);
+	--tw-prose-captions: var(--green-dim);
+	--tw-prose-code: var(--green-bright);
+	--tw-prose-pre-code: var(--green-text);
+	--tw-prose-pre-bg: var(--bg);
+	--tw-prose-th-borders: var(--rule);
+	--tw-prose-td-borders: var(--rule);
+
+	max-width: 70ch;
+	font-size: 15px;
+	line-height: 1.75;
+
+	h2 {
+		font-size: 1.05rem;
+		font-weight: 500;
+		margin-top: 2.5em;
+		margin-bottom: 0.75em;
+
+		/* Section headings read as shell commands, matching the listing pages. */
+		&::before {
+			content: '$ ';
+			color: var(--green-bright);
+		}
+	}
+
+	h3 {
+		font-size: 1rem;
+		font-weight: 500;
+	}
+
+	strong {
+		font-weight: 500;
+		color: var(--green-bright);
+	}
+
+	code::before,
+	code::after {
+		content: none;
+	}
+
+	:not(pre) > code {
+		border: 1px solid var(--rule);
+		border-radius: 2px;
+		padding: 0.1em 0.35em;
+		font-size: 0.9em;
+	}
+
+	pre {
+		border: 1px solid var(--rule);
+		border-radius: 2px;
+		font-size: 0.85em;
+		line-height: 1.6;
 	}
 }
