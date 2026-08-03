@@ -10,7 +10,7 @@ A personal site for Khoa Nguyen, software and data engineer. Two jobs, in priori
 1. Let a recruiter or hiring manager understand who Khoa is and what he has shipped in under 60 seconds.
 2. Host project write-ups that can grow into full case studies over time.
 
-Success looks like: a recruiter lands on `/`, reads the positioning line, scans the project list and experience timeline, and leaves with the resume or a GitHub link. No dead ends, no scrolling for the point.
+Success looks like: a recruiter lands on `/`, reads the positioning line, scans the project list and experience timeline, and leaves via the LinkedIn or email link. No dead ends, no scrolling for the point.
 
 Explicit non-goals: no blog, no newsletter, no CMS, no analytics dashboard, no server runtime.
 
@@ -86,8 +86,9 @@ Defined in `src/lib/content/schema.ts` using Zod.
 | `name` | string | yes | Used in the hero and `<title>` |
 | `tagline` | string | yes | The one-line positioning statement under the hero |
 | `skills` | string[] | yes | Rendered on `/about` |
-| `resume` | string | yes | Path to the PDF in `static/` |
-| `links` | array of `{ label, url }` | yes | Contact and social links in the footer |
+| `links` | array of `{ label, url }` | yes | Contact and social links in the footer. LinkedIn stands in for the resume |
+
+There is no `resume` field. The site hosts no resume PDF — see Resume handling below.
 
 At least one project file and one experience file must exist for the build to succeed. An empty site is a bug, not a valid state.
 
@@ -120,7 +121,7 @@ If a project has no body and no `repo`, the schema fails the build. A row that l
 | `/` | Hero, featured projects, full experience timeline, contact links |
 | `/projects` | All projects, grouped by year, filterable by stack tag |
 | `/projects/[slug]` | Case study. Prerendered only for projects with bodies |
-| `/about` | Longer bio, skills, resume download |
+| `/about` | Longer bio, skills, contact and LinkedIn |
 
 Experience lives on `/` rather than its own route. With a handful of roles a dedicated page would read as empty, and keeping it on the home page holds the recruiter's skim path to one scroll.
 
@@ -172,7 +173,7 @@ The flat listing removes the need for Card and Badge. Components actually used:
 
 - **Command** — `⌘K` palette for jump-to-project. The one component that reads as native on a terminal-styled site.
 - **Sheet** — mobile navigation.
-- **Button** — resume download, external links.
+- **Button** — external links: LinkedIn, GitHub, email.
 - **Tooltip** — abbreviations and stack tags.
 
 Components are added via the shadcn-svelte CLI and then restyled to the green scale. Their defaults are a starting point, not the target look.
@@ -236,11 +237,9 @@ No component-level unit tests. For markup this simple they would cost more than 
 
 Sourced from the LinkedIn profile export (authoritative for dates and titles), the public resume PDF, and the GitHub profile.
 
-**The public resume PDF is stale and must be regenerated before launch.** It states "General Motors — Jan 2021 to Present," which has been wrong since May 2024. Shipping a site that links to it would put a contradiction one click from the experience timeline. Treat the corrected PDF as a launch blocker.
-
 **Experience**
 
-- H-E-B, Austin TX — Software Engineer, May 2024 – present. Current role. Detail to be supplied by Khoa; the LinkedIn entry carries no bullets.
+- H-E-B, Austin TX — Software Engineer, May 2024 – present. Current role. Data streaming continuing the GM line of work, backend services and APIs, and warehouse-side data work in BigQuery and SQL. Specific outcome bullets to be supplied by Khoa; the LinkedIn entry carries none.
 - General Motors, Austin TX — Software Engineer, Strategic Incubation Office, Jan 2021 – May 2024. Java, Akka, and Apache Pulsar streaming supporting communication for over 13 million vehicles. Redis and Cassandra to cut microservice latency. Azure CI/CD with Kubernetes and Docker, +5% delivery efficiency. Spring Boot streaming features for cross-functional testing, −25% time to production readiness. Ubuntu Linux infrastructure build and migration. Incident-handling training contributing to four nines.
 - UCI Medical Center, Irvine CA — Web Developer, Oct 2020 – Jan 2021. Radiology department site on PHP and WordPress; A/B tested layouts.
 - UC Irvine — BS Computer Science.
@@ -255,7 +254,19 @@ The resume PDF and LinkedIn disagree on graduation timing (March 2020 versus 201
 2. *Spring Boot streaming test harness* (GM) — UDP streaming and Avro-over-Pulsar extending end-to-end test coverage across services. Azure CI/CD with Docker into Kubernetes. 500,000 messages per second with configurable throughput; cut time to production readiness 25%.
 3. *German Football Data Analyzer* (personal) — the one public repo worth keeping. Angular, Node, Express, MongoDB, CSV parsing into a REST API. The sole open-source entry.
 
-A fourth project from the current H-E-B role is desirable, since the two strongest case studies are now from a previous employer. Pending material from Khoa.
+A fourth case study from H-E-B is strongly desirable, since the two strongest entries are otherwise from a previous employer and a recruiter reads that as work that stopped in 2024. The BigQuery and SQL work is the best candidate: it is the only warehouse-side material in the inventory, and it covers the "data engineering" half of the target roles that the GM streaming work does not. Pending material from Khoa.
+
+## Positioning
+
+Hero tagline positions Khoa as a backend engineer with streaming depth. This is deliberately broader than "streaming engineer" — it keeps generalist backend roles in play — while still leading with the differentiator rather than the LinkedIn headline's "Java | Full Stack," which undersells the strongest material.
+
+The tagline lives in `about.md` frontmatter and is the single place this positioning is expressed. It is not duplicated in page copy.
+
+## Resume handling
+
+The site hosts no resume PDF. The footer and `/about` link to LinkedIn instead. This removes the drift that left the published PDF two years stale, at the cost of not handing recruiters a file.
+
+**`/Khoa_Nguyen_Resume.pdf` must not 404.** That URL is live today and may appear on already-submitted applications. A `_redirects` entry maps it to the LinkedIn profile with a 302. A 302 rather than 301 keeps the path reusable if a hosted resume returns later.
 
 **Deliberately excluded.** The remaining 35 GitHub repos are pre-2021 MEAN-stack and bootcamp-era work — SpotifyBrowser, Ionic_Sleeper, mern_shopping_list, movies-website, KCSearchEngine. They misrepresent a streaming and data engineering candidate and are omitted rather than listed. The GitHub profile link in the footer remains, so nothing is hidden.
 
@@ -263,20 +274,22 @@ The `german_football` Heroku demo URL on the resume is dead, since Heroku remove
 
 ## Publishing guardrail
 
-Case studies describe employer work. Content is limited to what already appears on Khoa's public resume: architecture at the level of named public technologies, and metrics he has already published. No internal system names, no proprietary configuration, no unpublished figures, no customer or fleet data. When in doubt, the resume is the ceiling.
+Case studies describe employer work. Content is limited to what Khoa has already published himself — the LinkedIn profile and the previously public resume: architecture at the level of named public technologies, and metrics already stated there. No internal system names, no proprietary configuration, no unpublished figures, no customer or fleet data. Those two documents are the ceiling.
+
+This applies with extra care to H-E-B, the current employer, where nothing has been published yet. Its bullets and case study come from Khoa directly and are his call to publish.
 
 ## Launch scope
 
 Ships with three written case studies, since the strongest material has nothing to link to:
 
 - Three project files, each with a complete body. Two carry no `repo` or `demo`.
-- `about.md` complete, including tagline, skills, resume path, and footer links.
+- `about.md` complete, including tagline, skills, and footer links.
 - Experience files for H-E-B, General Motors, and UCI Medical Center.
-- **Corrected** resume PDF at `static/Khoa_Nguyen_Resume.pdf`, keeping the existing public URL so any live link survives.
+- `_redirects` mapping the old resume PDF path to LinkedIn.
 
-Writing the three case studies is the critical path, not the build. Further projects are added afterward, one file at a time, with no code changes.
+Writing the case studies is the critical path, not the build. Further projects are added afterward, one file at a time, with no code changes.
 
-Two content blockers must clear before launch: current H-E-B role detail, and the regenerated resume PDF.
+One content blocker must clear before launch: H-E-B role bullets, since the current position cannot ship empty. The fourth H-E-B case study is not a blocker but should follow quickly.
 
 ## Deferred
 
