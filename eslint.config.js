@@ -47,7 +47,11 @@ export default defineConfig(
 		files: [
 			'src/lib/components/DirectoryList.svelte',
 			'src/lib/components/SiteFooter.svelte',
-			'src/lib/components/CommandPalette.svelte'
+			'src/lib/components/CommandPalette.svelte',
+			// SiteHeader does call resolve(), but appends a #hash to the result for
+			// the experience anchor. The rule only recognises a bare resolve() call,
+			// not one inside a template literal.
+			'src/lib/components/SiteHeader.svelte'
 		],
 		rules: { 'svelte/no-navigation-without-resolve': 'off' }
 	}

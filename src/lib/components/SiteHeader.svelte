@@ -1,21 +1,28 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
+	import { palette } from './palette-state.svelte.js';
 
 	/*
-		Two links fit on the narrowest phone, so there is no drawer or hamburger.
-		A slide-out panel for two items adds a tap, a dependency, and a focus trap
-		to maintain, in exchange for hiding almost nothing.
+		Three links fit on the narrowest phone, so there is no drawer or hamburger.
+		A slide-out panel for three items adds a tap, a dependency, and a focus
+		trap to maintain, in exchange for hiding almost nothing.
+
+		Experience is a section of the home page rather than a route — there is not
+		enough of it to justify one — so it links to an anchor. From another page
+		that navigates home and scrolls; from home it just scrolls.
 	*/
 	const links = [
 		{ href: resolve('/projects'), label: 'projects' },
+		{ href: `${resolve('/')}#experience`, label: 'experience' },
 		{ href: resolve('/about'), label: 'about' }
 	];
 
-	const isCurrent = (href: string) => page.url.pathname.startsWith(href);
+	const isCurrent = (href: string) =>
+		!href.includes('#') && page.url.pathname.startsWith(href) && href !== '/';
 
-	// The ⌘K hint is only meaningful where there is a keyboard, and it is a hint
-	// rather than a control — the palette opens from the shortcut itself.
+	// The shortcut hint is only meaningful where there is a keyboard, but the
+	// badge is a real button so a pointer can reach the palette too.
 	const isApple =
 		typeof navigator !== 'undefined' && /mac|iphone|ipad/i.test(navigator.platform ?? '');
 </script>
@@ -23,9 +30,9 @@
 <header class="mb-12 flex items-baseline justify-between gap-4 text-xs">
 	<a href={resolve('/')} class="text-phosphor no-underline hover:underline">~/henrykhoanguyen</a>
 
-	<div class="flex items-baseline gap-4">
+	<div class="flex items-baseline gap-3 sm:gap-4">
 		<nav aria-label="Main">
-			<ul class="m-0 flex list-none gap-4 p-0">
+			<ul class="m-0 flex list-none gap-3 p-0 sm:gap-4">
 				{#each links as link (link.href)}
 					<li>
 						<a
@@ -40,10 +47,14 @@
 			</ul>
 		</nav>
 
-		<kbd
-			class="hidden rounded-sm border border-phosphor-rule px-1.5 py-0.5 text-[0.65rem] text-phosphor-dim sm:inline-block"
+		<button
+			type="button"
+			onclick={() => palette.open()}
+			aria-label="Open the jump-to palette"
+			aria-keyshortcuts="Meta+K Control+K"
+			class="hidden rounded-sm border border-phosphor-rule px-1.5 py-0.5 text-[0.65rem] text-phosphor-dim hover:border-phosphor hover:text-phosphor sm:inline-block"
 		>
-			{isApple ? '⌘' : 'ctrl '}K
-		</kbd>
+			{isApple ? '⌘' : 'ctrl+'}K
+		</button>
 	</div>
 </header>

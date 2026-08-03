@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { filterItems, moveSelection, withGroupHeadings } from './palette.js';
+	import { palette } from './palette-state.svelte.js';
 	import type { PaletteItem } from './palette.js';
 
 	/**
@@ -35,15 +36,22 @@
 		if (selected >= results.length) selected = 0;
 	});
 
-	function open() {
-		query = '';
-		selected = 0;
-		dialog?.showModal();
-	}
-
-	function close() {
-		dialog?.close();
-	}
+	/*
+		The shared state expresses intent; <dialog> is what is actually on screen.
+		This effect drives the element from the state, and the element's own
+		`close` event drives the state back — which is what keeps native Escape
+		and backdrop dismissal from leaving the two out of step.
+	*/
+	$effect(() => {
+		if (!dialog) return;
+		if (palette.isOpen && !dialog.open) {
+			query = '';
+			selected = 0;
+			dialog.showModal();
+		} else if (!palette.isOpen && dialog.open) {
+			dialog.close();
+		}
+	});
 
 	function choose() {
 		anchors[selected]?.click();
@@ -52,8 +60,7 @@
 	function onWindowKeydown(event: KeyboardEvent) {
 		if (event.key.toLowerCase() === 'k' && (event.metaKey || event.ctrlKey)) {
 			event.preventDefault();
-			if (dialog?.open) close();
-			else open();
+			palette.toggle();
 		}
 	}
 
@@ -84,8 +91,9 @@
 	class="palette m-0 w-[min(34rem,calc(100vw-2rem))] rounded-sm border border-phosphor-rule bg-popover p-0 text-phosphor-text backdrop:bg-black/70"
 	aria-label="Jump to"
 	onkeydown={onDialogKeydown}
+	onclose={() => palette.close()}
 	onclick={(event) => {
-		if (event.target === dialog) close();
+		if (event.target === dialog) palette.close();
 	}}
 >
 	<div class="flex items-baseline gap-2 border-b border-phosphor-rule px-3 py-2">
@@ -122,7 +130,7 @@
 					target={/^https?:\/\//.test(item.href) ? '_blank' : undefined}
 					rel={/^https?:\/\//.test(item.href) ? 'noopener noreferrer' : undefined}
 					onmouseenter={() => (selected = i)}
-					onclick={close}
+					onclick={() => palette.close()}
 				>
 					<span class="shrink-0 text-xs text-phosphor-dim" aria-hidden="true">
 						{i === selected ? '>' : ' '}

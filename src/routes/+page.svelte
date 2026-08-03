@@ -57,5 +57,6 @@
 	>
 </p>
 
-<PromptHeading command="cat ./experience" />
+<!-- The nav links here, so the id has to live on something scroll-visible. -->
+<PromptHeading command="cat ./experience" id="experience" />
 <DirectoryList items={experienceRows} ariaLabel="Work experience" />
