@@ -9,8 +9,8 @@
 	import SkillFilter from '$lib/components/SkillFilter.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
 	import { FINAL, next, reached, stateFor, type Step } from '$lib/components/boot.js';
-	import { formatDate, formatEnd, formatYear } from '$lib/content/format.js';
-	import { isDimmed } from '$lib/content/transform.js';
+	import { experienceRow, projectRow } from '$lib/content/rows.js';
+	import { isDeadSpaceClick } from '$lib/components/outside-click.js';
 
 	let { data } = $props();
 
@@ -93,11 +93,7 @@
 	// Clicking dead space clears the pin, the same gesture that clears the stack
 	// filter on /projects.
 	function onDocumentClick(event: MouseEvent) {
-		if (!pinned) return;
-		const target = event.target as HTMLElement | null;
-		if (target?.closest('a, button, input, select, textarea, dialog, [role="button"]')) return;
-		if (window.getSelection()?.toString()) return;
-		pinned = null;
+		if (pinned && isDeadSpaceClick(event)) pinned = null;
 	}
 
 	const matchCount = $derived(
@@ -108,14 +104,7 @@
 	);
 
 	const projectRows: DirectoryRow[] = $derived(
-		data.featured.map((p) => ({
-			gutter: formatYear(p.date),
-			title: p.title,
-			summary: p.summary,
-			meta: p.stack.slice(0, 2).join(' · '),
-			href: p.href,
-			dimmed: isDimmed(p.stack, activeSkill)
-		}))
+		data.featured.map((p) => projectRow(p, { maxStack: 2, activeSkill }))
 	);
 
 	/*
@@ -123,21 +112,12 @@
 		as a project row above. Highlights are omitted; the full history lives at
 		/experiences. `ls` here, `cat` there, the split the projects listing uses.
 
-		The gutter stacks its date range, end above start, matching the direction
-		the listing runs: reading down the gutter moves backwards in time exactly
-		as reading down the page does.
-
-		These rows are not year-grouped. Each carries its own full range, so
+		Not year-grouped, unlike projects: each row carries its own full range, so
 		blanking a repeated year would hide the month that distinguishes two roles
 		begun in the same one.
 	*/
 	const experienceRows: DirectoryRow[] = $derived(
-		data.experience.map((role) => ({
-			gutter: [formatEnd(role.end), '-', formatDate(role.start)],
-			title: `${role.role} · ${role.company}`,
-			summary: role.summary,
-			dimmed: isDimmed(role.stack, activeSkill)
-		}))
+		data.experience.map((role) => experienceRow(role, { activeSkill }))
 	);
 </script>
 

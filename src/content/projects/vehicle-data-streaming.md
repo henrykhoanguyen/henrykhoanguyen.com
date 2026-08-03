@@ -7,6 +7,7 @@ stack:
   - Apache Pulsar
   - Cassandra
   - Redis
+  - Kubernetes
 date: '2024-05'
 featured: true
 ---

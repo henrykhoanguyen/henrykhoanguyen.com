@@ -13,11 +13,15 @@ highlights:
   - Collaborated on Ubuntu Linux infrastructure creation and migration, and coached junior developers through day-to-day operations.
 stack:
   - Java
+  - Python
   - Akka
   - Apache Pulsar
+  - Kafka
   - Cassandra
   - Redis
   - Kubernetes
+  - Docker
   - Azure DevOps
   - Grafana
+  - Linux
 ---

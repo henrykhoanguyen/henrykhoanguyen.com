@@ -9,7 +9,7 @@
  * Reference: https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
  */
 
-export type Rgb = { r: number; g: number; b: number };
+type Rgb = { r: number; g: number; b: number };
 
 /** Parses `#rgb` or `#rrggbb` into channel values in the range 0–255. */
 export function parseHex(hex: string): Rgb {

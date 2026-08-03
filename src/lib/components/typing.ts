@@ -5,11 +5,6 @@
  * owns the timers; this owns the decisions.
  */
 
-/** Every prefix of the text, in order, ending with the complete string. */
-export function typingSteps(text: string): string[] {
-	return Array.from({ length: text.length + 1 }, (_, i) => text.slice(0, i));
-}
-
 /**
  * Delay before the next character.
  *

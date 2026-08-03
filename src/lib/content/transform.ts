@@ -102,12 +102,6 @@ export function isDimmed(stack: string[], activeSkill: string | null): boolean {
 	return activeSkill !== null && !stack.includes(activeSkill);
 }
 
-/** Filters by stack tag. An absent or unknown tag returns everything. */
-export function filterByStack(projects: Project[], tag: string | null): Project[] {
-	if (!tag) return projects;
-	return projects.filter((p) => p.stack.includes(tag));
-}
-
 /**
  * URL-safe form of a stack tag: `Pub/Sub` → `pub-sub`, `Node.js` → `node-js`.
  *

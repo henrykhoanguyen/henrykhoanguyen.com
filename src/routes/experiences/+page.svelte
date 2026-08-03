@@ -3,7 +3,7 @@
 	import DirectoryList from '$lib/components/DirectoryList.svelte';
 	import MoreLink from '$lib/components/MoreLink.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
-	import { formatDate, formatEnd } from '$lib/content/format.js';
+	import { experienceRow } from '$lib/content/rows.js';
 
 	let { data } = $props();
 
@@ -16,12 +16,7 @@
 		anyone who wants the detail has one click to reach it.
 	*/
 	const rows: DirectoryRow[] = $derived(
-		data.experience.map((role) => ({
-			gutter: [formatEnd(role.end), '-', formatDate(role.start)],
-			title: `${role.role} · ${role.company}`,
-			summary: role.summary,
-			details: role.highlights
-		}))
+		data.experience.map((role) => experienceRow(role, { withHighlights: true }))
 	);
 </script>
 

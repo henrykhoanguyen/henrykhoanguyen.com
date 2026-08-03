@@ -11,8 +11,13 @@ highlights:
   - Cut service response times from minutes to 20–50ms by designing precomputed BigQuery views and tables in place of on-demand queries.
 stack:
   - Java
+  - Python
   - Pub/Sub
+  - Kafka
   - BigQuery
   - Oracle
   - SQL
+  - Kubernetes
+  - Docker
+  - Linux
 ---

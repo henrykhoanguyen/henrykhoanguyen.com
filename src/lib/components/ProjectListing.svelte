@@ -1,10 +1,11 @@
 <script lang="ts">
 	import PromptHeading from './PromptHeading.svelte';
 	import DirectoryList from './DirectoryList.svelte';
-	import type { DirectoryRow } from './directory.js';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { tagSlug } from '$lib/content/transform.js';
+	import { projectRow } from '$lib/content/rows.js';
+	import { isDeadSpaceClick } from './outside-click.js';
 	import type { Project } from '$lib/content/schema.js';
 
 	/**
@@ -39,15 +40,9 @@
 		click from a link or a button.
 	*/
 	function onDocumentClick(event: MouseEvent) {
-		if (!activeTag) return;
-
-		const target = event.target as HTMLElement | null;
-		if (target?.closest('a, button, input, select, textarea, dialog, [role="button"]')) return;
-
-		// Leaves text selection alone: dragging to select ends in a click too.
-		if (window.getSelection()?.toString()) return;
-
-		goto(resolve('/projects'), { noScroll: true, keepFocus: true });
+		if (activeTag && isDeadSpaceClick(event)) {
+			goto(resolve('/projects'), { noScroll: true, keepFocus: true });
+		}
 	}
 
 	/*
@@ -58,14 +53,9 @@
 	const rendered = $derived(
 		groups.map((group) => ({
 			year: group.year,
-			rows: group.items.map((p, i): DirectoryRow => ({
-				gutter: i === 0 ? group.year : '',
-				title: p.title,
-				summary: p.summary,
-				meta: p.stack.slice(0, 3).join(' · '),
-				href: p.href,
-				dimmed: activeTag !== null && !p.stack.includes(activeTag)
-			}))
+			rows: group.items.map((p, i) =>
+				projectRow(p, { gutter: i === 0 ? group.year : '', activeSkill: activeTag })
+			)
 		}))
 	);
 

@@ -1,27 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { keystrokeDelay, typingSteps } from './typing.js';
-
-describe('typingSteps', () => {
-	it('starts empty and ends with the whole string', () => {
-		const steps = typingSteps('Khoa');
-		expect(steps[0]).toBe('');
-		expect(steps.at(-1)).toBe('Khoa');
-	});
-
-	it('adds exactly one character per step', () => {
-		const steps = typingSteps('Khoa Nguyen');
-		const wrong = steps.filter((step, i) => step.length !== i);
-		expect(wrong).toEqual([]);
-	});
-
-	it('handles an empty string without producing a stray step', () => {
-		expect(typingSteps('')).toEqual(['']);
-	});
-
-	it('preserves spaces rather than collapsing them', () => {
-		expect(typingSteps('Khoa Nguyen')[5]).toBe('Khoa ');
-	});
-});
+import { keystrokeDelay } from './typing.js';
 
 describe('keystrokeDelay', () => {
 	// Injected randomness keeps these deterministic.

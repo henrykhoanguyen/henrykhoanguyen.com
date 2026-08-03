@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
 	collectSkills,
 	collectStackTags,
-	filterByStack,
 	isDimmed,
 	groupByYear,
 	hasBody,
@@ -194,25 +193,6 @@ describe('collectStackTags', () => {
 
 	it('returns nothing when there are no projects', () => {
 		expect(collectStackTags([])).toEqual([]);
-	});
-});
-
-describe('filterByStack', () => {
-	const projects = [
-		project({ slug: 'a', stack: ['java', 'kafka'] }),
-		project({ slug: 'b', stack: ['python'] })
-	];
-
-	it('keeps only projects carrying the tag', () => {
-		expect(filterByStack(projects, 'java').map((p) => p.slug)).toEqual(['a']);
-	});
-
-	it('returns everything when no tag is selected', () => {
-		expect(filterByStack(projects, null)).toHaveLength(2);
-	});
-
-	it('returns nothing for a tag no project carries', () => {
-		expect(filterByStack(projects, 'rust')).toEqual([]);
 	});
 });
 

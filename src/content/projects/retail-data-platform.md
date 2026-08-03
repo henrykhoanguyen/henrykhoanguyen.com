@@ -7,6 +7,7 @@ stack:
   - BigQuery
   - Oracle
   - SQL
+  - Kubernetes
 date: '2026-01'
 featured: true
 ---
