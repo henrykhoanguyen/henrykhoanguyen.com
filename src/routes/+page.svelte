@@ -4,8 +4,7 @@
 	import PromptHeading from '$lib/components/PromptHeading.svelte';
 	import DirectoryList from '$lib/components/DirectoryList.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
-	import { formatMonth, formatYear } from '$lib/content/format.js';
-	import { groupByYear } from '$lib/content/transform.js';
+	import { formatDate, formatYear } from '$lib/content/format.js';
 
 	let { data } = $props();
 
@@ -20,24 +19,23 @@
 	);
 
 	/*
-		Experience uses the same three-column rhythm as the projects listing:
-		start year in the gutter, month on the right, highlights beneath the role.
+		Experience uses the same gutter as the projects listing, carrying the full
+		start date rather than just a year, with highlights beneath the role.
 
-		Only the start date is shown. An end date on the current role would be
-		empty or say "now", and on past roles the span matters less than the order
-		— which the listing already conveys. Grouping by year means a year prints
-		once even if two roles began in it, and the month on the right still tells
-		them apart.
+		Only the start date is shown. An end date on the current role would either
+		be blank or say "now", and on past roles the span matters less than the
+		order, which the listing already conveys.
+
+		Unlike projects these rows are not year-grouped: each carries its own month
+		and year, so blanking a repeated year would hide the month that
+		distinguishes two roles begun in the same one.
 	*/
 	const experienceRows: DirectoryRow[] = $derived(
-		groupByYear(data.experience, (role) => role.start).flatMap((group) =>
-			group.items.map((role, i) => ({
-				gutter: i === 0 ? group.year : '',
-				title: `${role.role} · ${role.company}`,
-				meta: formatMonth(role.start),
-				details: role.highlights
-			}))
-		)
+		data.experience.map((role) => ({
+			gutter: formatDate(role.start),
+			title: `${role.role} · ${role.company}`,
+			details: role.highlights
+		}))
 	);
 </script>
 

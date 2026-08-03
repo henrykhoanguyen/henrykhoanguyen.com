@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, formatMonth, formatYear } from './format.js';
+import { formatDate, formatYear } from './format.js';
 
 describe('formatDate', () => {
 	it('renders month and year when the source has a month', () => {
@@ -28,17 +28,12 @@ describe('formatYear', () => {
 	});
 });
 
-describe('formatMonth', () => {
-	it('returns the abbreviated month', () => {
-		expect(formatMonth('2024-05')).toBe('May');
-	});
-
-	it('returns nothing when the source has no month, rather than guessing one', () => {
-		expect(formatMonth('2026')).toBe('');
-	});
-
-	it('reads across the row with the gutter to form the full date', () => {
-		// The listing splits a start date: year on the left, month on the right.
-		expect(`${formatMonth('2024-05')} ${formatYear('2024-05')}`).toBe('May 2024');
+describe('gutter widths', () => {
+	// The two listings share one column grid, so the gutter must fit the widest
+	// value either of them produces — an experience start date, not a year.
+	it('never produces a gutter value longer than "May 2024"', () => {
+		const values = ['2024-05', '2026-01', '2020-10', '2026'].map(formatDate);
+		const longest = Math.max(...values.map((v) => v.length));
+		expect(longest).toBeLessThanOrEqual('May 2024'.length);
 	});
 });

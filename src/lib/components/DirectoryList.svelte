@@ -23,8 +23,14 @@
 
 	const isExternal = (href?: string) => !!href && /^https?:\/\//.test(href);
 
+	/*
+		The gutter is wide enough for `May 2024`, not just a year, so the projects
+		and experience listings share one column grid and align down the page. The
+		trailing column is `auto`, so it collapses to nothing on rows that carry no
+		metadata.
+	*/
 	const ROW =
-		'grid grid-cols-[3.25rem_minmax(0,1fr)_auto] items-baseline gap-x-4 py-1.5 transition-opacity';
+		'grid grid-cols-[4.75rem_minmax(0,1fr)_auto] items-baseline gap-x-4 py-1.5 transition-opacity';
 </script>
 
 <!--
@@ -32,7 +38,7 @@
 	never drift apart.
 -->
 {#snippet cells(item: DirectoryRow, interactive: boolean)}
-	<span class="text-xs text-phosphor-dim tabular-nums">{item.gutter ?? ''}</span>
+	<span class="text-xs whitespace-nowrap text-phosphor-dim tabular-nums">{item.gutter ?? ''}</span>
 
 	<span class="min-w-0">
 		<span

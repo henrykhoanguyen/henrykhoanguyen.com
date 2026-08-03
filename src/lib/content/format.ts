@@ -16,19 +16,12 @@ export function formatDate(value: string): string {
 	return `${MONTHS[Number(month) - 1]} ${year}`;
 }
 
-/** `2024-05` → `2024`. */
+/**
+ * `2024-05` → `2024`.
+ *
+ * Projects show only a year in the gutter; experience shows a full start date
+ * there, which is why the gutter is sized for `May 2024` rather than `2024`.
+ */
 export function formatYear(value: string): string {
 	return value.slice(0, 4);
-}
-
-/**
- * `2024-05` → `May`, `2024` → `''`.
- *
- * The experience listing splits a start date across the row: the year sits in
- * the left gutter, matching the projects listing, and the month sits on the
- * right. Read across, a row still says "May … 2024".
- */
-export function formatMonth(value: string): string {
-	const month = value.split('-')[1];
-	return month ? MONTHS[Number(month) - 1] : '';
 }
