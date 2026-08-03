@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import { palette } from './palette-state.svelte.js';
+	import { promptFor } from './prompt.js';
 
 	/*
 		Three links fit on the narrowest phone, so there is no drawer or hamburger.
@@ -16,6 +17,10 @@
 
 	const isCurrent = (href: string) => page.url.pathname.startsWith(href);
 
+	// The prompt reports where the visitor is, the way a shell reports the host
+	// and working directory you are sitting in.
+	const prompt = $derived(promptFor(page.url.pathname));
+
 	// The shortcut hint is only meaningful where there is a keyboard, but the
 	// badge is a real button so a pointer can reach the palette too.
 	const isApple =
@@ -23,7 +28,16 @@
 </script>
 
 <header class="mb-12 flex items-baseline justify-between gap-4 text-xs">
-	<a href={resolve('/')} class="text-phosphor no-underline hover:underline">~/henrykhoanguyen</a>
+	<!--
+		Still a link home, but it reads as a prompt: the user names the section, the
+		working directory names the page within it.
+	-->
+	<a href={resolve('/')} class="no-underline hover:underline">
+		<span class="text-phosphor">{prompt.user}</span><span class="text-phosphor-dim"
+			>@{prompt.host}</span
+		>
+		<span class="text-phosphor-text">{prompt.cwd}</span>
+	</a>
 
 	<div class="flex items-baseline gap-3 sm:gap-4">
 		<nav aria-label="Main">
