@@ -8,6 +8,7 @@
 	import MoreLink from '$lib/components/MoreLink.svelte';
 	import SkillFilter from '$lib/components/SkillFilter.svelte';
 	import Hint from '$lib/components/Hint.svelte';
+	import LoginBanner from '$lib/components/LoginBanner.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
 	import { FINAL, next, reached, stateFor, type Step } from '$lib/components/boot.js';
 	import { experienceRow, projectRow } from '$lib/content/rows.js';
@@ -130,18 +131,16 @@
 </svelte:head>
 
 <!--
-	The skip hint lives at the top of the page and only while the sequence is
-	running. It has to be visible from the first frame — that is the moment it is
-	useful — and a hint for something that has already finished is just clutter,
-	so it leaves when the animation does.
+	The banner a terminal prints before its first prompt, and the carrier for the
+	skip hint.
 
-	It never appears in the prerendered HTML: the sequence starts finished during
-	prerender, so nobody with JavaScript disabled is told to skip an animation
-	that is not playing.
+	A note floating above the prompt reads as a web overlay pasted onto a
+	terminal; a login banner reads as the terminal itself. It stays after the
+	sequence finishes — a terminal does not erase its own startup output — and
+	only the skip clause drops away, since a hint for something already over is
+	just clutter.
 -->
-{#if step !== FINAL}
-	<Hint margin="mb-6">press any key, scroll, or click anywhere to skip the animation</Hint>
-{/if}
+<LoginBanner showSkipHint={step !== FINAL} />
 
 {#if reached(step, 'whoamiCommand')}
 	<Hero name={data.about.name} tagline={data.about.tagline} {step} onstep={advance} />
