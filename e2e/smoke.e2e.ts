@@ -83,7 +83,10 @@ test.describe('navigation', () => {
 
 	test('a project row opens its case study', async ({ page }) => {
 		await page.goto('/projects');
-		await page.getByRole('link', { name: /Retail data platform/ }).first().click();
+		await page
+			.getByRole('link', { name: /Retail data platform/ })
+			.first()
+			.click();
 		await expect(page).toHaveURL('/projects/retail-data-platform');
 		await expect(page.getByRole('heading', { level: 1 })).toContainText('Retail data platform');
 	});
@@ -141,6 +144,23 @@ test.describe('command palette', () => {
 		await page.keyboard.press('ControlOrMeta+k');
 		await page.keyboard.type('zzzznotathing');
 		await expect(page.getByText(/no matches found/)).toBeVisible();
+	});
+
+	test('the input never moves as results narrow', async ({ page }) => {
+		// A centred dialog re-centres itself as the list shrinks, dragging the
+		// input down while you are still typing into it. The dialog is anchored
+		// from the top so only its bottom edge moves.
+		await page.goto('/');
+		await page.keyboard.press('ControlOrMeta+k');
+
+		const input = page.getByRole('textbox', { name: 'Search pages and projects' });
+		const before = await input.boundingBox();
+
+		await page.keyboard.type('zzzznotathing');
+		await expect(page.getByText(/no matches found/)).toBeVisible();
+
+		const after = await input.boundingBox();
+		expect(after?.y).toBeCloseTo(before?.y ?? -1, 0);
 	});
 
 	test('finds contact links by their address, not just their label', async ({ page }) => {

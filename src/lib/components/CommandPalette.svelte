@@ -104,7 +104,10 @@
 		/>
 	</div>
 
-	<ul id="palette-results" class="m-0 max-h-72 list-none overflow-y-auto p-1 text-sm">
+	<ul
+		id="palette-results"
+		class="m-0 max-h-[min(18rem,calc(100dvh-14rem))] list-none overflow-y-auto p-1 text-sm"
+	>
 		{#each grouped as { item, heading }, i (item.href)}
 			{#if heading}
 				<li class="px-2 pt-2 pb-1 text-xs text-phosphor-dim" aria-hidden="true">{heading}</li>
@@ -138,11 +141,22 @@
 </dialog>
 
 <style>
-	/* Centre the dialog without position: fixed juggling. */
+	/*
+		Anchored from the top, not centred.
+
+		Vertical centring recomputes as the result list grows and shrinks, which
+		drags the input up and down while you are typing into it — narrow a query
+		to nothing and the whole dialog slides down to re-centre itself. Pinning
+		the top edge keeps the input at a fixed point on screen and lets only the
+		bottom edge move, so your eyes never have to follow the box.
+
+		This is why every palette worth using — Spotlight, Raycast, VS Code —
+		sits high rather than centred.
+	*/
 	.palette {
-		top: 50%;
+		top: clamp(3rem, 15vh, 9rem);
 		left: 50%;
-		translate: -50% -50%;
+		translate: -50% 0;
 		max-height: none;
 	}
 
