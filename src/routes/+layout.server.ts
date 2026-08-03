@@ -9,6 +9,14 @@ import type { LayoutServerLoad } from './$types.js';
 export const load: LayoutServerLoad = async () => {
 	const about = getAbout();
 
+	/*
+		Everything the palette can reach, assembled in one place.
+
+		Adding an entry is a line here — the component takes a flat list and knows
+		nothing about where any of it came from. Entries that *do* something rather
+		than navigate would need a second variant on PaletteItem; nothing yet
+		does.
+	*/
 	const palette: PaletteItem[] = [
 		{ label: 'Home', href: '/', group: 'pages' },
 		{ label: 'Projects', href: '/projects', group: 'pages' },
@@ -21,6 +29,14 @@ export const load: LayoutServerLoad = async () => {
 			group: 'projects',
 			// Summary and stack are searchable without cluttering the row.
 			keywords: `${project.summary} ${project.stack.join(' ')}`
+		})),
+		// Contact links are the most likely reason a recruiter reaches for the
+		// palette at all, so they belong in it rather than only in the footer.
+		...about.links.map((link) => ({
+			label: link.label,
+			href: link.url,
+			group: 'contact',
+			keywords: link.url.replace(/^https?:\/\/(www\.)?|^mailto:/, '')
 		}))
 	];
 
