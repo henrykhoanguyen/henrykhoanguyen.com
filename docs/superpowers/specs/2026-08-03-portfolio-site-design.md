@@ -18,7 +18,7 @@ Explicit non-goals: no blog, no newsletter, no CMS, no analytics dashboard, no s
 
 - Content authored in markdown, in-repo, edited in a text editor.
 - Fully static output. No server, no database, no runtime API calls.
-- Must launch useful with zero case studies written — Khoa currently has a resume and public repos, nothing written up.
+- The strongest material is proprietary employer work with no public repo and no demo. The site must present a project convincingly with no outbound link.
 - Must scale to ~15 projects without a layout rewrite.
 
 ## Stack
@@ -232,16 +232,51 @@ No component-level unit tests. For markup this simple they would cost more than 
 - Per-page `<title>` and meta tags, prerendered `sitemap.xml`, `robots.txt`.
 - No RSS feed. There is no blog.
 
+## Content inventory
+
+Sourced from the LinkedIn profile export (authoritative for dates and titles), the public resume PDF, and the GitHub profile.
+
+**The public resume PDF is stale and must be regenerated before launch.** It states "General Motors — Jan 2021 to Present," which has been wrong since May 2024. Shipping a site that links to it would put a contradiction one click from the experience timeline. Treat the corrected PDF as a launch blocker.
+
+**Experience**
+
+- H-E-B, Austin TX — Software Engineer, May 2024 – present. Current role. Detail to be supplied by Khoa; the LinkedIn entry carries no bullets.
+- General Motors, Austin TX — Software Engineer, Strategic Incubation Office, Jan 2021 – May 2024. Java, Akka, and Apache Pulsar streaming supporting communication for over 13 million vehicles. Redis and Cassandra to cut microservice latency. Azure CI/CD with Kubernetes and Docker, +5% delivery efficiency. Spring Boot streaming features for cross-functional testing, −25% time to production readiness. Ubuntu Linux infrastructure build and migration. Incident-handling training contributing to four nines.
+- UCI Medical Center, Irvine CA — Web Developer, Oct 2020 – Jan 2021. Radiology department site on PHP and WordPress; A/B tested layouts.
+- UC Irvine — BS Computer Science.
+
+De Anza College CS Lab Assistant (2015–2018) is omitted. It predates the professional record by six years and dilutes a recruiter-facing timeline.
+
+The resume PDF and LinkedIn disagree on graduation timing (March 2020 versus 2017–2019). Khoa confirms the correct value before it is published; the site states one date.
+
+**Projects at launch** — all three are written case studies. Two have no repo link.
+
+1. *Vehicle data streaming platform* (GM) — Java, Akka, and Apache Pulsar carrying telemetry for 13 million vehicles. Redis in front of Cassandra to cut latency. Metrics, dashboards, and alerting supporting four-nines operation.
+2. *Spring Boot streaming test harness* (GM) — UDP streaming and Avro-over-Pulsar extending end-to-end test coverage across services. Azure CI/CD with Docker into Kubernetes. 500,000 messages per second with configurable throughput; cut time to production readiness 25%.
+3. *German Football Data Analyzer* (personal) — the one public repo worth keeping. Angular, Node, Express, MongoDB, CSV parsing into a REST API. The sole open-source entry.
+
+A fourth project from the current H-E-B role is desirable, since the two strongest case studies are now from a previous employer. Pending material from Khoa.
+
+**Deliberately excluded.** The remaining 35 GitHub repos are pre-2021 MEAN-stack and bootcamp-era work — SpotifyBrowser, Ionic_Sleeper, mern_shopping_list, movies-website, KCSearchEngine. They misrepresent a streaming and data engineering candidate and are omitted rather than listed. The GitHub profile link in the footer remains, so nothing is hidden.
+
+The `german_football` Heroku demo URL on the resume is dead, since Heroku removed free dynos in late 2022. Do not carry it into `demo`. Either omit the field or point it at a working deployment.
+
+## Publishing guardrail
+
+Case studies describe employer work. Content is limited to what already appears on Khoa's public resume: architecture at the level of named public technologies, and metrics he has already published. No internal system names, no proprietary configuration, no unpublished figures, no customer or fleet data. When in doubt, the resume is the ceiling.
+
 ## Launch scope
 
-Ships with real structure and no case studies:
+Ships with three written case studies, since the strongest material has nothing to link to:
 
-- All project files carry frontmatter only, so every row links to GitHub. `repo` is therefore effectively required at launch.
-- One project ships with a fully written body, serving as the working template for the rest and proving the detail route works.
-- `about.md` and the experience files are complete.
-- Resume PDF in `static/`.
+- Three project files, each with a complete body. Two carry no `repo` or `demo`.
+- `about.md` complete, including tagline, skills, resume path, and footer links.
+- Experience files for H-E-B, General Motors, and UCI Medical Center.
+- **Corrected** resume PDF at `static/Khoa_Nguyen_Resume.pdf`, keeping the existing public URL so any live link survives.
 
-Case studies are written afterward, one file body at a time, with no code changes required.
+Writing the three case studies is the critical path, not the build. Further projects are added afterward, one file at a time, with no code changes.
+
+Two content blockers must clear before launch: current H-E-B role detail, and the regenerated resume PDF.
 
 ## Deferred
 
