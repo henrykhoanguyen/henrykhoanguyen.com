@@ -33,7 +33,9 @@
 
 <header class="mb-10">
 	<p class="mb-1.5 text-xs text-phosphor" aria-hidden="true">
-		<span>$ </span><TypedText
+		<!-- Non-breaking, for the same reason as PromptHeading: a plain trailing
+		     space here is collapsed and the prompt ends up glued to the command. -->
+		<span>$&nbsp;</span><TypedText
 			text="whoami"
 			phase={stateFor(step, 'whoamiCommand')}
 			caret

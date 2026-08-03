@@ -3,6 +3,7 @@
 	import DirectoryList from './DirectoryList.svelte';
 	import type { DirectoryRow } from './directory.js';
 	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import { tagSlug } from '$lib/content/transform.js';
 	import type { Project } from '$lib/content/schema.js';
 
@@ -29,6 +30,27 @@
 		tag === null ? resolve('/projects') : resolve('/projects/tag/[tag]', { tag: tagSlug(tag) });
 
 	/*
+		Clicking dead space clears the filter.
+
+		A filter with no obvious way out is a trap, and the usual escape — a small
+		×, or hunting for "all" among sixteen tags — is fussier than the gesture
+		people already reach for. This only fires while a filter is active, and
+		only when the click landed on nothing interactive, so it never steals a
+		click from a link or a button.
+	*/
+	function onDocumentClick(event: MouseEvent) {
+		if (!activeTag) return;
+
+		const target = event.target as HTMLElement | null;
+		if (target?.closest('a, button, input, select, textarea, dialog, [role="button"]')) return;
+
+		// Leaves text selection alone: dragging to select ends in a click too.
+		if (window.getSelection()?.toString()) return;
+
+		goto(resolve('/projects'), { noScroll: true, keepFocus: true });
+	}
+
+	/*
 		Non-matching rows are dimmed rather than removed. Removing them would
 		collapse year groups and make the page jump on every filter change;
 		dimming keeps the gutter stable so the eye stays where it was.
@@ -50,6 +72,8 @@
 	const total = $derived(groups.reduce((n, g) => n + g.items.length, 0));
 	const shown = $derived(rendered.reduce((n, g) => n + g.rows.filter((r) => !r.dimmed).length, 0));
 </script>
+
+<svelte:document onclick={onDocumentClick} />
 
 <PromptHeading command="ls ./projects" />
 

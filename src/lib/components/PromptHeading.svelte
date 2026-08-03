@@ -28,8 +28,14 @@
 	rather than sitting flush against it.
 -->
 <h2 {id} class="mt-12 mb-3 scroll-mt-8 text-xs font-medium text-phosphor first:mt-0">
-	<!-- Decorative. A screen reader should hear "ls ./projects", not "dollar sign". -->
-	<span aria-hidden="true">$ </span><span class="sr-only">{command}</span><span aria-hidden="true"
-		><TypedText text={command} {phase} caret {onfinish} /></span
+	<!--
+		Decorative. A screen reader should hear "ls ./projects", not "dollar sign".
+
+		The space after the $ is non-breaking on purpose: a plain trailing space
+		inside a span is collapsed away when the markup is rendered, which glues
+		the prompt to the command as "$ls ./projects".
+	-->
+	<span aria-hidden="true">$&nbsp;</span><span class="sr-only">{command}</span><span
+		aria-hidden="true"><TypedText text={command} {phase} caret {onfinish} /></span
 	>
 </h2>
