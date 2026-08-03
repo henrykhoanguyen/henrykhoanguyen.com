@@ -3,12 +3,18 @@ import { FINAL, indexOf, next, reached, STEPS, stateFor } from './boot.js';
 import type { Step } from './boot.js';
 
 describe('the sequence', () => {
-	it('assembles bottom-up: experience, then projects, then the hero', () => {
+	it('assembles bottom-up: skills, experiences, projects, then the hero', () => {
+		expect(indexOf('skillsCommand')).toBeLessThan(indexOf('experienceCommand'));
 		expect(indexOf('experienceCommand')).toBeLessThan(indexOf('projectsCommand'));
 		expect(indexOf('projectsCommand')).toBeLessThan(indexOf('whoamiCommand'));
 	});
 
+	it('starts at the bottom of the page, which is the skills row', () => {
+		expect(STEPS[0]).toBe('skillsCommand');
+	});
+
 	it('types each command before revealing what it produced', () => {
+		expect(indexOf('skillsCommand')).toBeLessThan(indexOf('skillsBody'));
 		expect(indexOf('experienceCommand')).toBeLessThan(indexOf('experienceBody'));
 		expect(indexOf('projectsCommand')).toBeLessThan(indexOf('projectsBody'));
 	});

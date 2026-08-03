@@ -80,6 +80,28 @@ export function collectStackTags(projects: Project[]): string[] {
 	return [...new Set(projects.flatMap((p) => p.stack))].sort((a, b) => a.localeCompare(b));
 }
 
+/**
+ * The skills worth showing as filters: every tag that appears on at least one
+ * project or role.
+ *
+ * Deliberately derived rather than hand-listed. `about.md` carries a longer
+ * skills list, but a chip that highlights nothing when hovered is a dead end —
+ * it promises a connection and delivers a blank page. Deriving guarantees every
+ * chip does something, and it cannot drift as content changes.
+ */
+export function collectSkills(
+	projects: { stack: string[] }[],
+	experiences: { stack: string[] }[]
+): string[] {
+	const all = [...projects, ...experiences].flatMap((item) => item.stack);
+	return [...new Set(all)].sort((a, b) => a.localeCompare(b));
+}
+
+/** True when an item should fade because it does not use the active skill. */
+export function isDimmed(stack: string[], activeSkill: string | null): boolean {
+	return activeSkill !== null && !stack.includes(activeSkill);
+}
+
 /** Filters by stack tag. An absent or unknown tag returns everything. */
 export function filterByStack(projects: Project[], tag: string | null): Project[] {
 	if (!tag) return projects;

@@ -8,6 +8,7 @@ import {
 	type Project
 } from '$lib/content/schema.js';
 import {
+	collectSkills,
 	collectStackTags,
 	groupByYear,
 	hasBody,
@@ -111,6 +112,15 @@ export function getExperience(): Experience[] {
 
 export function getStackTags(): string[] {
 	return collectStackTags(projects);
+}
+
+/**
+ * Skills that appear on at least one project or role — the chips on the home
+ * page. Wider than the project-only stack tags used by /projects, because a
+ * skill used at a job but never in a public project still belongs here.
+ */
+export function getSkills(): string[] {
+	return collectSkills(projects, experience);
 }
 
 export function getProjectsByYear() {

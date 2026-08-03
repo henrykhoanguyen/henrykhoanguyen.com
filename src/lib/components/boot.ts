@@ -1,8 +1,8 @@
 /**
  * The home page's boot sequence.
  *
- * The page assembles bottom-up: experience types first, then the projects
- * prompt appears above it and pushes it down, then the hero appears above both.
+ * The page assembles bottom-up: skills type first, then experiences appear
+ * above and push them down, then projects, then the hero above all of it.
  * Because sections render in normal document order and simply are not present
  * yet, the pushing happens on its own — there is no positioning trick here, only
  * absent elements arriving.
@@ -11,6 +11,8 @@
  * legible and reordering does not mean renumbering comparisons by hand.
  */
 export const STEPS = [
+	'skillsCommand',
+	'skillsBody',
 	'experienceCommand',
 	'experienceBody',
 	'projectsCommand',

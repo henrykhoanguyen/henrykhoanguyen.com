@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+	collectSkills,
 	collectStackTags,
 	filterByStack,
+	isDimmed,
 	groupByYear,
 	hasBody,
 	projectHref,
@@ -255,5 +257,65 @@ describe('tagFromSlug', () => {
 	it('round-trips every tag', () => {
 		const broken = tags.filter((tag) => tagFromSlug(tags, tagSlug(tag)) !== tag);
 		expect(broken).toEqual([]);
+	});
+});
+
+describe('collectSkills', () => {
+	const projects = [project({ stack: ['Java', 'Kafka'] }), project({ stack: ['Java', 'Redis'] })];
+	const experiences = [{ stack: ['Java', 'Oracle'] }, { stack: ['PHP'] }];
+
+	it('unions project and experience stacks', () => {
+		expect(collectSkills(projects, experiences)).toEqual([
+			'Java',
+			'Kafka',
+			'Oracle',
+			'PHP',
+			'Redis'
+		]);
+	});
+
+	it('includes skills used only at a job, never in a public project', () => {
+		expect(collectSkills(projects, experiences)).toContain('Oracle');
+	});
+
+	it('deduplicates across both sources', () => {
+		const skills = collectSkills(projects, experiences);
+		expect(skills.filter((s) => s === 'Java')).toHaveLength(1);
+	});
+
+	it('returns nothing when there is no content', () => {
+		expect(collectSkills([], [])).toEqual([]);
+	});
+
+	it('never lists a skill that highlights nothing', () => {
+		// The whole point of deriving rather than hand-listing: every chip must
+		// match at least one row.
+		const skills = collectSkills(projects, experiences);
+		const everything = [...projects, ...experiences];
+		const dead = skills.filter((skill) => !everything.some((i) => i.stack.includes(skill)));
+		expect(dead).toEqual([]);
+	});
+});
+
+describe('isDimmed', () => {
+	it('dims nothing when no skill is active', () => {
+		expect(isDimmed(['Java'], null)).toBe(false);
+	});
+
+	it('keeps an item lit when it uses the active skill', () => {
+		expect(isDimmed(['Java', 'Redis'], 'Java')).toBe(false);
+	});
+
+	it('dims an item that does not', () => {
+		expect(isDimmed(['Python'], 'Java')).toBe(true);
+	});
+
+	it('dims an item with no stack at all', () => {
+		expect(isDimmed([], 'Java')).toBe(true);
+	});
+
+	it('matches exactly rather than by substring', () => {
+		// "Java" must not light up a row that only lists "JavaScript".
+		expect(isDimmed(['JavaScript'], 'Java')).toBe(true);
 	});
 });
