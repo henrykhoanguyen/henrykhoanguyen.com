@@ -1,3 +1,5 @@
-# allow crawling everything by default
+# Everything here is meant to be found.
 User-agent: *
 Disallow:
+
+Sitemap: https://henrykhoanguyen.com/sitemap.xml

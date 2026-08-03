@@ -19,6 +19,9 @@ export const load: PageServerLoad = async ({ params }) => {
 	return {
 		groups: getProjectsByYear(),
 		tags: getStackTags(),
-		activeTag: tag
+		activeTag: tag,
+		// Every tag page shows the same projects with a different one emphasised,
+		// so they all point search engines back at the unfiltered listing.
+		canonical: '/projects'
 	};
 };

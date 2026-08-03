@@ -1,0 +1,9 @@
+# Cloudflare Pages redirects.
+#
+# The resume PDF used to live at this exact path and may appear on job
+# applications already submitted, so it must not start returning 404 the day
+# this site deploys. The site no longer hosts a PDF; LinkedIn stands in for it.
+#
+# 302 rather than 301: a permanent redirect gets cached hard by browsers and
+# crawlers, and this path should stay reusable if a hosted resume ever returns.
+/Khoa_Nguyen_Resume.pdf  https://www.linkedin.com/in/henrykhoanguyen/  302

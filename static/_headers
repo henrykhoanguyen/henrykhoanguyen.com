@@ -1,0 +1,19 @@
+# Cloudflare Pages headers.
+
+# Everything under /_app/immutable is content-hashed by Vite: the filename
+# changes whenever the contents do, so it can be cached indefinitely.
+/_app/immutable/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Fonts are large, stable, and self-hosted.
+/_app/immutable/assets/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+# HTML is not hashed, so it must revalidate or a deploy would go unnoticed by
+# anyone who has visited before.
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY

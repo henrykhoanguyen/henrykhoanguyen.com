@@ -4,11 +4,30 @@
 	import SiteHeader from '$lib/components/SiteHeader.svelte';
 	import SiteFooter from '$lib/components/SiteFooter.svelte';
 	import CommandPalette from '$lib/components/CommandPalette.svelte';
+	import { page } from '$app/state';
+	import { absolute } from '$lib/site.js';
 
 	let { children, data } = $props();
+
+	/*
+		Pages set their own title and description; these are the site-wide facts
+		that would otherwise be repeated in every <svelte:head>.
+
+		Canonical is emitted once, here. A route that should point elsewhere —
+		the stack filter pages, which are all views of /projects — returns a
+		`canonical` path from its load rather than adding a second tag of its own.
+	*/
+	const canonical = $derived(absolute(page.data.canonical ?? page.url.pathname));
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head>
+	<link rel="icon" href={favicon} />
+	<link rel="canonical" href={canonical} />
+	<meta property="og:site_name" content={data.name} />
+	<meta property="og:url" content={canonical} />
+	<meta name="twitter:card" content="summary" />
+	<meta name="author" content={data.name} />
+</svelte:head>
 
 <!--
 	Keyboard users land here first. Hidden until focused, then pinned top-left so
