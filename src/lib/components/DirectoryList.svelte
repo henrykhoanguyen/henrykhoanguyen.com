@@ -22,7 +22,46 @@
 	let { items, ariaLabel }: { items: DirectoryRow[]; ariaLabel: string } = $props();
 
 	const isExternal = (href?: string) => !!href && /^https?:\/\//.test(href);
+
+	const ROW =
+		'grid grid-cols-[3.25rem_minmax(0,1fr)_auto] items-baseline gap-x-4 py-1.5 transition-opacity';
 </script>
+
+<!--
+	The row interior, shared by the linked and unlinked branches so the two can
+	never drift apart.
+-->
+{#snippet cells(item: DirectoryRow, interactive: boolean)}
+	<span class="text-xs text-phosphor-dim tabular-nums">{item.gutter ?? ''}</span>
+
+	<span class="min-w-0">
+		<span
+			class="text-phosphor-text"
+			class:group-hover:text-phosphor={interactive}
+			class:group-hover:underline={interactive}
+		>
+			{item.title}
+		</span>
+
+		{#if item.summary}
+			<span class="block text-xs leading-relaxed text-phosphor-dim">{item.summary}</span>
+		{/if}
+
+		{#if item.details?.length}
+			<ul class="mt-1 mb-1 list-none space-y-1 p-0 text-xs leading-relaxed text-phosphor-dim">
+				{#each item.details as detail (detail)}
+					<li class="flex gap-2">
+						<!-- The dash is a bullet, and the list already announces itself. -->
+						<span class="shrink-0 text-phosphor" aria-hidden="true">-</span>
+						<span>{detail}</span>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	</span>
+
+	<span class="text-xs whitespace-nowrap text-phosphor-dim">{item.meta ?? ''}</span>
+{/snippet}
 
 <!--
 	A real <ul>. The grid is presentation only — a screen reader still hears
@@ -30,38 +69,20 @@
 -->
 <ul class="m-0 list-none p-0" aria-label={ariaLabel}>
 	{#each items as item (item.title)}
-		{@const row =
-			'grid grid-cols-[3.25rem_minmax(0,1fr)_auto] items-baseline gap-x-4 py-1.5 transition-opacity'}
 		<li>
 			{#if item.href}
 				<a
 					href={item.href}
-					class="{row} group no-underline"
+					class="{ROW} group no-underline"
 					class:opacity-30={item.dimmed}
 					target={isExternal(item.href) ? '_blank' : undefined}
 					rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
 				>
-					<span class="text-xs text-phosphor-dim tabular-nums">{item.gutter ?? ''}</span>
-					<span class="min-w-0">
-						<span class="text-phosphor-text group-hover:text-phosphor group-hover:underline">
-							{item.title}
-						</span>
-						{#if item.summary}
-							<span class="block text-xs leading-relaxed text-phosphor-dim">{item.summary}</span>
-						{/if}
-					</span>
-					<span class="text-xs whitespace-nowrap text-phosphor-dim">{item.meta ?? ''}</span>
+					{@render cells(item, true)}
 				</a>
 			{:else}
-				<div class={row} class:opacity-30={item.dimmed}>
-					<span class="text-xs text-phosphor-dim tabular-nums">{item.gutter ?? ''}</span>
-					<span class="min-w-0">
-						<span class="text-phosphor-text">{item.title}</span>
-						{#if item.summary}
-							<span class="block text-xs leading-relaxed text-phosphor-dim">{item.summary}</span>
-						{/if}
-					</span>
-					<span class="text-xs whitespace-nowrap text-phosphor-dim">{item.meta ?? ''}</span>
+				<div class={ROW} class:opacity-30={item.dimmed}>
+					{@render cells(item, false)}
 				</div>
 			{/if}
 		</li>

@@ -1,16 +1,17 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import Hero from '$lib/components/Hero.svelte';
 	import PromptHeading from '$lib/components/PromptHeading.svelte';
 	import DirectoryList from '$lib/components/DirectoryList.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
-	import { resolve } from '$app/paths';
-	import { formatRange } from '$lib/content/format.js';
+	import { formatMonth, formatYear } from '$lib/content/format.js';
+	import { groupByYear } from '$lib/content/transform.js';
 
 	let { data } = $props();
 
 	const projectRows: DirectoryRow[] = $derived(
 		data.featured.map((p) => ({
-			gutter: p.date.slice(0, 4),
+			gutter: formatYear(p.date),
 			title: p.title,
 			summary: p.summary,
 			meta: p.stack.slice(0, 2).join(' · '),
@@ -18,13 +19,25 @@
 		}))
 	);
 
-	// Experience is not year-grouped: every role spans years, so a year gutter
-	// would repeat and mislead. The date range goes on the right instead.
+	/*
+		Experience uses the same three-column rhythm as the projects listing:
+		start year in the gutter, month on the right, highlights beneath the role.
+
+		Only the start date is shown. An end date on the current role would be
+		empty or say "now", and on past roles the span matters less than the order
+		— which the listing already conveys. Grouping by year means a year prints
+		once even if two roles began in it, and the month on the right still tells
+		them apart.
+	*/
 	const experienceRows: DirectoryRow[] = $derived(
-		data.experience.map((role) => ({
-			title: `${role.role} · ${role.company}`,
-			meta: formatRange(role.start, role.end)
-		}))
+		groupByYear(data.experience, (role) => role.start).flatMap((group) =>
+			group.items.map((role, i) => ({
+				gutter: i === 0 ? group.year : '',
+				title: `${role.role} · ${role.company}`,
+				meta: formatMonth(role.start),
+				details: role.highlights
+			}))
+		)
 	);
 </script>
 
@@ -44,26 +57,3 @@
 
 <PromptHeading command="cat ./experience" />
 <DirectoryList items={experienceRows} ariaLabel="Work experience" />
-
-<!--
-	Highlights sit under the listing rather than inside it. The listing answers
-	"where has he worked"; this answers "what did he do there", and a recruiter
-	skimming the first question should not have to wade through the second.
--->
-<div class="mt-8 space-y-6">
-	{#each data.experience as role (role.slug)}
-		<section aria-labelledby="role-{role.slug}">
-			<h3 id="role-{role.slug}" class="text-xs text-phosphor-text">
-				{role.role} · {role.company}
-			</h3>
-			<ul class="mt-1.5 list-none space-y-1 p-0 text-xs leading-relaxed text-phosphor-dim">
-				{#each role.highlights as highlight (highlight)}
-					<li class="flex gap-2">
-						<span class="shrink-0 text-phosphor" aria-hidden="true">-</span>
-						<span>{highlight}</span>
-					</li>
-				{/each}
-			</ul>
-		</section>
-	{/each}
-</div>

@@ -10,6 +10,11 @@ export type DirectoryRow = {
 	title: string;
 	/** Optional second line beneath the title. */
 	summary?: string;
+	/**
+	 * Dashed detail lines beneath the title, for rows that carry more than a
+	 * one-line summary — role highlights, for instance.
+	 */
+	details?: string[];
 	/** Right-aligned metadata: stack tags, date ranges. */
 	meta?: string;
 	/** Omit to render a non-interactive row. */
