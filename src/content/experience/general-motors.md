@@ -1,6 +1,6 @@
 ---
 company: General Motors
-role: Software Engineer, Strategic Incubation Office
+role: Software Engineer
 start: '2021-01'
 end: '2024-05'
 highlights:

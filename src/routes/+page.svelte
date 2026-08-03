@@ -22,9 +22,13 @@
 		Experience uses the same gutter as the projects listing, but stacks the
 		date range across three lines so the column stays narrow:
 
-			May 2024
-			-
 			Present
+			-
+			May 2024
+
+		End on top, start beneath — the same direction as the listing itself, which
+		runs most recent first. Reading down the gutter moves backwards in time,
+		exactly as reading down the page does.
 
 		Unlike projects these rows are not year-grouped: each carries its own full
 		range, so blanking a repeated year would hide the month distinguishing two
@@ -32,7 +36,7 @@
 	*/
 	const experienceRows: DirectoryRow[] = $derived(
 		data.experience.map((role) => ({
-			gutter: [formatDate(role.start), '-', formatEnd(role.end)],
+			gutter: [formatEnd(role.end), '-', formatDate(role.start)],
 			title: `${role.role} · ${role.company}`,
 			details: role.highlights
 		}))

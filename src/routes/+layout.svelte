@@ -3,6 +3,7 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import SiteHeader from '$lib/components/SiteHeader.svelte';
 	import SiteFooter from '$lib/components/SiteFooter.svelte';
+	import CommandPalette from '$lib/components/CommandPalette.svelte';
 
 	let { children, data } = $props();
 </script>
@@ -27,3 +28,5 @@
 	</main>
 	<SiteFooter links={data.links} />
 </div>
+
+<CommandPalette items={data.palette} />

@@ -1,0 +1,152 @@
+<script lang="ts">
+	import { filterItems, moveSelection, withGroupHeadings } from './palette.js';
+	import type { PaletteItem } from './palette.js';
+
+	/**
+	 * Jump-to-anything palette, opened with ⌘K or Ctrl+K.
+	 *
+	 * Built on the native <dialog> element rather than a component library.
+	 * `showModal()` gives focus trapping, Escape-to-close, inertness of the page
+	 * behind, and a ::backdrop for free — which is precisely the set of details
+	 * that hand-rolled modals get wrong. What remains is a text input and a list,
+	 * and those are worth owning here so the palette can look like a terminal
+	 * rather than like a restyled component.
+	 */
+	let { items }: { items: PaletteItem[] } = $props();
+
+	let dialog = $state<HTMLDialogElement>();
+	let query = $state('');
+	let selected = $state(0);
+
+	/*
+		Results are real anchors, and Enter clicks the selected one rather than
+		calling goto(). Three things fall out of that: entries pointing at an
+		external repo work without special-casing, middle-click and
+		open-in-new-tab behave as expected, and SvelteKit still upgrades internal
+		links to client-side navigation on its own.
+	*/
+	let anchors: HTMLAnchorElement[] = $state([]);
+
+	const results = $derived(filterItems(items, query));
+	const grouped = $derived(withGroupHeadings(results));
+
+	// Selection can outrun a shrinking result list as the query narrows.
+	$effect(() => {
+		if (selected >= results.length) selected = 0;
+	});
+
+	function open() {
+		query = '';
+		selected = 0;
+		dialog?.showModal();
+	}
+
+	function close() {
+		dialog?.close();
+	}
+
+	function choose() {
+		anchors[selected]?.click();
+	}
+
+	function onWindowKeydown(event: KeyboardEvent) {
+		if (event.key.toLowerCase() === 'k' && (event.metaKey || event.ctrlKey)) {
+			event.preventDefault();
+			if (dialog?.open) close();
+			else open();
+		}
+	}
+
+	function onDialogKeydown(event: KeyboardEvent) {
+		if (event.key === 'ArrowDown') {
+			event.preventDefault();
+			selected = moveSelection(selected, 1, results.length);
+		} else if (event.key === 'ArrowUp') {
+			event.preventDefault();
+			selected = moveSelection(selected, -1, results.length);
+		} else if (event.key === 'Enter') {
+			event.preventDefault();
+			choose();
+		}
+		// Escape is handled by <dialog> itself.
+	}
+</script>
+
+<svelte:window onkeydown={onWindowKeydown} />
+
+<!--
+	Clicking the backdrop closes. The handler sits on the dialog and checks that
+	the click landed on the dialog element itself rather than its contents, which
+	is how a ::backdrop click surfaces in the DOM.
+-->
+<dialog
+	bind:this={dialog}
+	class="palette m-0 w-[min(34rem,calc(100vw-2rem))] rounded-sm border border-phosphor-rule bg-popover p-0 text-phosphor-text backdrop:bg-black/70"
+	aria-label="Jump to"
+	onkeydown={onDialogKeydown}
+	onclick={(event) => {
+		if (event.target === dialog) close();
+	}}
+>
+	<div class="flex items-baseline gap-2 border-b border-phosphor-rule px-3 py-2">
+		<span class="text-xs text-phosphor" aria-hidden="true">$</span>
+		<!--
+			No autofocus attribute needed: showModal() moves focus to the first
+			focusable element, which is this input.
+		-->
+		<input
+			bind:value={query}
+			type="text"
+			placeholder="jump to..."
+			aria-label="Search pages and projects"
+			aria-controls="palette-results"
+			class="w-full border-0 bg-transparent p-0 text-sm text-phosphor-text outline-none placeholder:text-phosphor-dim"
+		/>
+	</div>
+
+	<ul id="palette-results" class="m-0 max-h-72 list-none overflow-y-auto p-1 text-sm">
+		{#each grouped as { item, heading }, i (item.href)}
+			{#if heading}
+				<li class="px-2 pt-2 pb-1 text-xs text-phosphor-dim" aria-hidden="true">{heading}</li>
+			{/if}
+			<li>
+				<a
+					bind:this={anchors[i]}
+					href={item.href}
+					class="flex w-full items-baseline gap-2 rounded-sm px-2 py-1.5 text-left no-underline hover:bg-secondary hover:no-underline"
+					class:bg-secondary={i === selected}
+					class:text-phosphor={i === selected}
+					target={/^https?:\/\//.test(item.href) ? '_blank' : undefined}
+					rel={/^https?:\/\//.test(item.href) ? 'noopener noreferrer' : undefined}
+					onmouseenter={() => (selected = i)}
+					onclick={close}
+				>
+					<span class="shrink-0 text-xs text-phosphor-dim" aria-hidden="true">
+						{i === selected ? '>' : ' '}
+					</span>
+					<span class="min-w-0 truncate">{item.label}</span>
+				</a>
+			</li>
+		{/each}
+
+		{#if results.length === 0}
+			<li class="px-3 py-3 text-xs text-phosphor-dim">
+				zsh: no matches found: {query}
+			</li>
+		{/if}
+	</ul>
+</dialog>
+
+<style>
+	/* Centre the dialog without position: fixed juggling. */
+	.palette {
+		top: 50%;
+		left: 50%;
+		translate: -50% -50%;
+		max-height: none;
+	}
+
+	.palette::backdrop {
+		backdrop-filter: blur(1px);
+	}
+</style>

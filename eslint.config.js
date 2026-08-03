@@ -44,7 +44,11 @@ export default defineConfig(
 		 * already be absolute, so the rule is switched off here rather than
 		 * worked around at each call site.
 		 */
-		files: ['src/lib/components/DirectoryList.svelte', 'src/lib/components/SiteFooter.svelte'],
+		files: [
+			'src/lib/components/DirectoryList.svelte',
+			'src/lib/components/SiteFooter.svelte',
+			'src/lib/components/CommandPalette.svelte'
+		],
 		rules: { 'svelte/no-navigation-without-resolve': 'off' }
 	}
 );
