@@ -280,6 +280,63 @@ speed up, which is exactly why 6a is a step rather than a suggestion.
 
 ---
 
+## Routine: deploying
+
+**There is no deploy command.** Once the project is connected to Git, Cloudflare
+builds on push, and the branch decides where it lands.
+
+```bash
+git push origin master        # → production, henrykhoanguyen.com
+git push origin some-branch   # → preview, some-branch.<project>.pages.dev
+```
+
+Whatever you set as the **production branch** when creating the project is the
+only branch that touches the live domain. Everything else builds to a preview URL
+and cannot affect production, which makes a branch the natural way to look at a
+risky change on real infrastructure before committing to it.
+
+Each preview gets two addresses: an immutable one per commit,
+`<hash>.<project>.pages.dev`, and a branch alias that always tracks the newest
+commit, `<branch>.<project>.pages.dev`. Branch names are lowercased and
+non-alphanumeric characters become hyphens, so `fix/palette` serves at
+`fix-palette.<project>.pages.dev`.
+
+Previews are served with `x-robots-tag: noindex` automatically, so a draft of
+your portfolio will not compete with the real one in search results. Worth
+knowing rather than assuming — it is the failure mode you would not notice.
+
+Opening a pull request from a branch in the same repository gets you a preview
+URL commented on the PR.
+
+### Deploying without pushing
+
+Only relevant if you create the project as **Direct Upload** instead of
+connecting it to Git. A project is one or the other; if Cloudflare is watching
+the repository, push instead and let the build run there.
+
+```bash
+npm run build
+npx wrangler pages deploy build --project-name=<project>              # production
+npx wrangler pages deploy build --project-name=<project> --branch=draft  # preview
+```
+
+`--branch` is what separates the two: pass the production branch name and it goes
+live, pass anything else and it becomes a preview. There is no `--production`
+flag, which is easy to misremember and expensive to get wrong.
+
+Useful neighbours:
+
+```bash
+npx wrangler pages deployment list --project-name=<project>
+npx wrangler pages deployment tail --project-name=<project>
+npx wrangler pages deployment delete <id> --project-name=<project>
+```
+
+The catch with direct upload is that it publishes whatever is in `build/` on your
+machine, including uncommitted work. The Git integration builds from what is
+actually committed, which is why it is the better default for a site that
+represents you professionally.
+
 ## Routine: adding a project later
 
 No code changes needed.
