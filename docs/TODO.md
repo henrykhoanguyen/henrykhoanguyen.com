@@ -36,11 +36,19 @@ file.
 
 ## Testing
 
-- [ ] **Run the full e2e suite and fix what it finds.** `npm run test:e2e`. The
-      coverage for skill highlighting, intro replay, and the exit sequence was
-      written but never executed — the sandbox could not download Playwright's
-      browsers. Expect a selector or two to need adjusting on the first run. This
-      is worth doing before the DNS cutover, not after.
+- [ ] **Run the full e2e suite and confirm it is green.** `npm run test:e2e`.
+      Worth doing before the DNS cutover rather than after. Your 3 August run
+      failed 7 tests, which is what `test-results/` holds. Six were the
+      animation: the suite was clicking links and looking for skill chips while
+      the boot sequence was still assembling the page, so Playwright now runs
+      with `prefers-reduced-motion` by default and only the tests actually about
+      the animation ever see it. The seventh was a real bug, since fixed —
+      clicking a link mid-animation collapsed the sequence, which inserted the
+      rest of the page above the pointer and moved the link out from under the
+      click, so the click was swallowed and you stayed put. Pointer events on
+      links and buttons no longer skip. None of this is verified: Playwright's
+      browsers cannot be downloaded in the sandbox these fixes were written in,
+      so the suite has never run against them.
 
 ## Cleanup after cutover
 
