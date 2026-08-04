@@ -108,7 +108,10 @@ Shiki gets a custom theme built from the same five token values rather than an o
 - `src/routes/projects/+page.svelte` — full listing, year-grouped
 - `src/routes/projects/[slug]/+page.svelte` and `+page.ts` with `entries()` sourced from the content layer
 - `src/routes/about/+page.svelte`
-- `src/routes/+error.svelte` — `zsh: no such file or directory: /foo`, with links back to `/` and `/projects`
+- `src/routes/404/+page.svelte` — prerendered to `build/404.html`, the file the host serves for an unmatched path
+- `src/routes/+error.svelte` — the same screen for navigations that fail after boot
+
+> Added after the fact: the `+error.svelte` component alone was not enough. A static host with no `404.html` falls back to `index.html`, so a mistyped URL served the home page instead of an error. See the spec's failure-modes section.
 
 **Done when:** every route renders from placeholder content, `entries()` generates pages only for projects with bodies, and a bad URL renders the custom error page.
 

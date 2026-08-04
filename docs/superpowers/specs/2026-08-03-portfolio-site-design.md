@@ -184,7 +184,18 @@ A static site has three real failure modes. Each has exactly one guard.
 
 1. **Malformed or missing frontmatter.** Zod validation throws at build with the offending filename and the failing field. Broken content cannot reach production.
 2. **A case study route with no backing file.** Structurally impossible — the route list is derived from the files themselves.
-3. **A mistyped URL.** Custom `+error.svelte` renders `zsh: no such file or directory: /foo` in character, with links back to `/` and `/projects`.
+3. **A mistyped URL.** A prerendered `/404` route emits `build/404.html`, which the host serves for any path that matches no file:
+
+   ```
+   $ exec ./where_u_thik_u_goin_?
+   zsh: no such file or directory
+   ```
+
+   `+error.svelte` renders the same screen for a navigation that fails after the app has booted, so both routes into it look identical.
+
+   **This must be a real file, not only an error component.** Without `404.html` a static host falls back to `index.html`, and a mistyped URL serves the home page — boot sequence and all — while the header prompt reads `guest@`. It looks like the site working, which is worse than an error. Cloudflare Pages picks up `404.html` automatically; Workers static assets needs `assets.not_found_handling: "404-page"`.
+
+   No list of suggested links: the nav and header prompt are already on screen, and a helpful menu undercuts the joke it sits beneath.
 
 ## Accessibility
 

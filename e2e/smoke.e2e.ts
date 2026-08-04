@@ -35,6 +35,20 @@ function watchForErrors(page: Page): string[] {
 	return errors;
 }
 
+/**
+ * Opens the palette, waits for it, runs a query, and activates the top result.
+ *
+ * Typing before the dialog exists sends the keystrokes nowhere and the Enter
+ * lands on the page behind it, which fails as "nothing happened" some distance
+ * from the actual cause.
+ */
+async function openPalette(page: Page, query: string) {
+	await page.keyboard.press('ControlOrMeta+k');
+	await expect(page.getByRole('dialog', { name: 'Jump to' })).toBeVisible();
+	await page.getByRole('textbox', { name: 'Search pages and projects' }).fill(query);
+	await page.keyboard.press('Enter');
+}
+
 test.describe('every page', () => {
 	for (const path of PAGES) {
 		test(`${path} loads without errors`, async ({ page }) => {
@@ -291,13 +305,6 @@ test.describe('deployment metadata', () => {
 
 test.describe('skills', () => {
 	/*
-		Reduced motion renders the page complete on arrival. Pressing a key to skip
-		the intro would race hydration: land the keystroke before the listener is
-		attached and the test waits on an animation nobody cancelled.
-	*/
-	test.use({ reducedMotion: 'reduce' });
-
-	/*
 		The row a skill lights up is derived from frontmatter `stack`, so these
 		assert against real content: BigQuery appears only under H-E-B, and PHP
 		only under UCI. If either role's stack changes, these should fail rather
@@ -387,6 +394,9 @@ test.describe('skills', () => {
 });
 
 test.describe('the intro', () => {
+	// The only tests that want the animation, so the only ones that turn it back on.
+	test.use({ reducedMotion: 'no-preference' });
+
 	test('does not replay when returning home from a subpage', async ({ page }) => {
 		await page.goto('/');
 		// Let the first run finish rather than racing it — the point of the test
@@ -404,6 +414,18 @@ test.describe('the intro', () => {
 			makes this a test of the gate rather than of patience.
 		*/
 		await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 400 });
+	});
+
+	test('a link clicked while it runs still navigates', async ({ page }) => {
+		/*
+			Finishing the sequence inserts every remaining section above the
+			pointer. Skipping on the way down moved the link out from under the
+			click, which swallowed it — the visitor stayed put and it looked like
+			a broken link. Pointer events on interactive elements no longer skip.
+		*/
+		await page.goto('/');
+		await page.getByRole('link', { name: 'experiences', exact: true }).click();
+		await expect(page).toHaveURL('/experiences');
 	});
 
 	test('replays when the header prompt is clicked', async ({ page }) => {
@@ -424,9 +446,7 @@ test.describe('the intro', () => {
 test.describe('exit', () => {
 	test('quitting replaces the page with a logout screen', async ({ page }) => {
 		await page.goto('/');
-		await page.keyboard.press('ControlOrMeta+k');
-		await page.keyboard.type(':q!');
-		await page.keyboard.press('Enter');
+		await openPalette(page, ':q!');
 
 		await expect(page.getByText('logout')).toBeVisible();
 		// Skip the sequence, then the only thing on screen is the way back.
@@ -436,9 +456,7 @@ test.describe('exit', () => {
 
 	test('takes the whole site with it', async ({ page }) => {
 		await page.goto('/');
-		await page.keyboard.press('ControlOrMeta+k');
-		await page.keyboard.type('exit');
-		await page.keyboard.press('Enter');
+		await openPalette(page, 'exit');
 
 		await expect(page.getByRole('navigation', { name: 'Main' })).not.toBeVisible();
 		await expect(page.getByRole('contentinfo')).not.toBeVisible();
@@ -446,9 +464,7 @@ test.describe('exit', () => {
 
 	test('restores the site', async ({ page }) => {
 		await page.goto('/');
-		await page.keyboard.press('ControlOrMeta+k');
-		await page.keyboard.type('quit');
-		await page.keyboard.press('Enter');
+		await openPalette(page, 'quit');
 		await page.keyboard.press('Space');
 
 		await page.getByRole('button', { name: 'click to restore' }).click();

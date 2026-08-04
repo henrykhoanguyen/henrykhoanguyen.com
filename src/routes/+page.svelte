@@ -82,12 +82,32 @@
 			animation before they can read anything.
 		*/
 		const skip = () => finish();
-		window.addEventListener('pointerdown', skip, { once: true });
+
+		/*
+			Except when the pointer is on something clickable.
+
+			The page assembles bottom-up, so finishing the sequence inserts every
+			remaining section *above* whatever you were aiming at. Skip on the way
+			down and the link moves out from under the pointer before the click
+			lands on it — the click is swallowed and the visitor goes nowhere,
+			which reads as a broken link rather than a cancelled animation.
+
+			A click on a link is a decision about where to go, not a complaint
+			about the animation. Let it through; the navigation ends the sequence
+			anyway.
+		*/
+		const skipUnlessInteractive = (event: PointerEvent) => {
+			const target = event.target as HTMLElement | null;
+			if (target?.closest('a, button, [role="button"]')) return;
+			finish();
+		};
+
+		window.addEventListener('pointerdown', skipUnlessInteractive);
 		window.addEventListener('keydown', skip, { once: true });
 		window.addEventListener('wheel', skip, { once: true, passive: true });
 
 		return () => {
-			window.removeEventListener('pointerdown', skip);
+			window.removeEventListener('pointerdown', skipUnlessInteractive);
 			window.removeEventListener('keydown', skip);
 			window.removeEventListener('wheel', skip);
 		};
