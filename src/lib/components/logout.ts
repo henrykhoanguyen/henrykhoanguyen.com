@@ -1,11 +1,15 @@
 /**
  * What the terminal prints on the way out.
  *
- * Kept as data rather than markup so the sequence can be tested and reordered
- * without touching the component that types it.
+ * The command is separate from the output because they are different things: a
+ * shell prints its own `$` and echoes what you typed, then the program writes
+ * its lines. Keeping them apart is also what lets the command line be the
+ * accent colour, like every other prompt on the site, while output stays in the
+ * reading colour.
  */
+export const LOGOUT_COMMAND = 'exit';
+
 export const LOGOUT_LINES = [
-	'$ exit',
 	'logout',
 	'Saving session...',
 	'...copying sus history...',
