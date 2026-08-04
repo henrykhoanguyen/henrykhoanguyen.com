@@ -30,13 +30,16 @@
 <header class="mb-12 flex items-baseline justify-between gap-4 text-xs">
 	<!--
 		Still a link home, but it reads as a prompt: the user names the section, the
-		working directory names the page within it. One colour throughout — the
-		prompt is a single utterance, and splitting it across three greens made it
-		read as three separate labels rather than one line.
+		working directory names the page within it.
+
+		Two colours, split where a shell splits them — `user@host` is who and where
+		you are connected, the working directory is where you are standing. It is
+		also the only part that changes as you move around, so it gets the reading
+		colour rather than the accent.
 	-->
-	<a href={resolve('/')} class="text-phosphor no-underline hover:underline">
-		{prompt.user}@{prompt.host}
-		{prompt.cwd}
+	<a href={resolve('/')} class="no-underline hover:underline">
+		<span class="text-phosphor">{prompt.user}@{prompt.host}</span>
+		<span class="text-phosphor-text">{prompt.cwd}</span>
 	</a>
 
 	<div class="flex items-baseline gap-3 sm:gap-4">
