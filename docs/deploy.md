@@ -2,10 +2,16 @@
 
 Target: Cloudflare Pages, static output, custom domain `henrykhoanguyen.com`.
 
-**This is a cutover, not a first deploy.** The domain already serves something —
-`henrykhoanguyen.com/Khoa_Nguyen_Resume.pdf` resolves today. Whatever is there
-now keeps serving until DNS changes, which is the last step and the only
-irreversible-feeling one. Everything before it is safe.
+**This is a cutover, not a first deploy.** The domain is registered at Namecheap
+and currently serves a GitHub Pages site. That site keeps serving until step 6d,
+and every step before it is reversible.
+
+The one-paragraph version: push to a new GitHub repo, let Cloudflare build it and
+verify the result on a `pages.dev` URL, move the nameservers from Namecheap to
+Cloudflare while the old site carries on serving, and only then point the domain
+at the new project. Two things can genuinely hurt — DNSSEC left enabled during
+the nameserver move, and `MX` records not carried across — and both are called
+out in step 6.
 
 ---
 
@@ -57,39 +63,39 @@ The only gate a machine cannot check.
 - [ ] Check the `skills` list in `src/content/about.md`. Every entry is a claim a
       recruiter may ask you to defend, and hovering one highlights exactly where
       you say you used it.
-- [ ] **Decide what the home page skills row should contain.** There are two
-      lists and they are built differently. `/about` renders the curated 16 in
-      `about.md`. The home row is derived from every `stack` in your content, so
-      it shows 23 — the extra seven are `Angular`, `Express`, `MongoDB`,
-      `Node.js`, `Oracle`, `PHP`, and `WordPress`. They arrive from the football
-      analyzer and the UCI role. Alphabetical order puts `Angular` second, which
-      is a loud opening for a backend and data engineer. Three ways out, all
-      cheap: leave it (the tags are true and the case studies carry the weight),
-      trim the stacks in those two files, or point the row at `about.md` instead
-      by swapping `getSkills()` for `getAbout().skills` in `+page.server.ts` —
-      though that reintroduces the drift risk of two lists maintained by hand.
+
+Everything else that could be improved is in `docs/TODO.md` and is not a launch
+blocker — including the home page skills row, which currently shows more than the
+curated list on `/about`.
 
 ## 3. Push to GitHub
+
+Create a **new, empty** repository named `henrykhoanguyen.com` — no README, no
+`.gitignore`, no licence, since this repo already has commits and GitHub's
+initial files would collide.
+
+Deliberately not the existing `henrykhoanguyen.github.io`. Keeping them separate
+means the old site keeps serving, untouched, right up until DNS moves — which is
+what makes every step before the cutover reversible.
 
 ```bash
 git remote add origin git@github.com:henrykhoanguyen/henrykhoanguyen.com.git
 git push -u origin master
 ```
 
-Make the repo public if you want the "source" link to work; private is fine
-otherwise, Cloudflare can read either.
+Public or private are both fine; Cloudflare can read either.
 
 ## 4. Create the Cloudflare Pages project
 
 Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git.
 
-| Setting | Value |
-| --- | --- |
-| Framework preset | SvelteKit *(or None)* |
-| Build command | `npm run build` |
-| Build output directory | `build` |
-| Root directory | *(leave blank)* |
-| Node version | 22 — read from `.nvmrc`, already committed |
+| Setting                | Value                                      |
+| ---------------------- | ------------------------------------------ |
+| Framework preset       | SvelteKit _(or None)_                      |
+| Build command          | `npm run build`                            |
+| Build output directory | `build`                                    |
+| Root directory         | _(leave blank)_                            |
+| Node version           | 22 — read from `.nvmrc`, already committed |
 
 If the build fails on Node version, set an environment variable
 `NODE_VERSION = 22` explicitly and rebuild.
@@ -135,24 +141,100 @@ prerendered routes rather than client-side state.
 The canonical tags and sitemap will point at `henrykhoanguyen.com` rather than
 `pages.dev`. That is correct and needs no change.
 
-## 6. DNS cutover
+## 6. Move DNS from Namecheap to Cloudflare
 
-Cloudflare Pages → your project → Custom domains → Set up a domain →
-`henrykhoanguyen.com`.
+You cannot skip this. Cloudflare Pages will attach a _subdomain_ from any DNS
+provider via a CNAME, but an **apex domain must be a Cloudflare zone** — which
+means the nameservers move. `henrykhoanguyen.com` is an apex domain.
 
-**Before adding records, look at what is already there.** The domain currently
-resolves somewhere — most likely GitHub Pages, given `henrykhoanguyen.github.io`
-on your GitHub profile. Removing the old records is part of this step; leaving
-them alongside the new ones produces intermittent, confusing results where the
-site works for some visitors and not others.
+The move splits cleanly into two halves, and keeping them apart is what makes
+this safe:
 
-1. Note the existing `A` / `AAAA` / `CNAME` records for the apex and `www`.
-2. Delete them.
-3. Let Cloudflare add its own records for the Pages project.
-4. Add `www.henrykhoanguyen.com` too, redirecting to the apex.
+- **6a–6c change who answers DNS.** The site still serves from GitHub Pages
+  throughout. Nothing about the website changes.
+- **6d switches the website over**, entirely inside the Cloudflare dashboard,
+  and is reversible in seconds.
 
-Propagation is usually minutes. TLS certificates issue automatically and can
-take up to ~15 minutes; a certificate warning during that window is expected.
+Do not do them in one sitting if you are rushed. Stopping after 6c leaves you in
+a perfectly stable state.
+
+### 6a. Inventory what Namecheap is serving today
+
+Namecheap → Domain List → Manage → **Advanced DNS**. Screenshot the whole record
+table. This is your rollback reference and it takes ten seconds.
+
+Look specifically for:
+
+- **`MX` records, and any `TXT` record starting `v=spf1`.** If mail for this
+  domain goes anywhere — Namecheap email forwarding, Google Workspace, Zoho —
+  it is these records that make it work. Nameservers moving without them
+  copied across means mail stops, silently, and you find out when someone tells
+  you weeks later that their email bounced. This is a bigger risk than the
+  website.
+- **`TXT` verification records** for Google Search Console or similar. Cheap to
+  copy, annoying to rediscover.
+- **The GitHub Pages records themselves**, which you will recognise as `A`
+  records to `185.199.108.153` through `185.199.111.153`, and probably a `www`
+  `CNAME` to `henrykhoanguyen.github.io`.
+
+### 6b. Add the zone to Cloudflare and check the import
+
+Cloudflare dashboard → Add a domain → `henrykhoanguyen.com` → Free plan.
+
+Cloudflare scans your current DNS and imports what it finds. **The scan is best
+effort, not a guarantee.** Compare every row against your screenshot and add
+anything missing by hand, before going any further.
+
+Leave the GitHub Pages records exactly as they are for now — they are what keeps
+the old site up during the switch.
+
+Set the imported GitHub Pages records to **DNS only** (grey cloud, not orange).
+Proxying a GitHub Pages origin while it serves its own certificate is the
+classic cause of a redirect loop, and there is nothing to gain by proxying a
+host you are about to stop using.
+
+### 6c. Disable DNSSEC, then switch the nameservers
+
+**Check Namecheap → Domain → Advanced DNS → DNSSEC first.** If it is enabled,
+turn it off and wait for it to clear before changing nameservers. Moving
+nameservers with a stale DNSSEC key in place does not degrade the site — it makes
+the domain fail to resolve entirely, for everyone, with no error page to explain
+it, and the fix has to propagate before anything recovers. This is the single
+most damaging mistake available in this whole procedure.
+
+Then: Namecheap → Domain List → Manage → **Nameservers** → **Custom DNS**, and
+enter the two nameservers Cloudflare gave you. Save with the green checkmark.
+
+Namecheap will say 24–48 hours. In practice it is usually under an hour.
+Cloudflare emails you when the zone goes active.
+
+While you wait, the site keeps serving from GitHub Pages, because the records
+Cloudflare imported still point there. That is the intended state.
+
+### 6d. Cut the website over
+
+Only once the Cloudflare zone reads **Active**:
+
+1. Cloudflare → DNS → Records. Delete the four GitHub Pages `A` records, any
+   `AAAA` records alongside them, and the `www` `CNAME` to
+   `henrykhoanguyen.github.io`. Leave `MX` and `TXT` records alone.
+2. Workers & Pages → your project → **Custom domains** → **Set up a domain** →
+   `henrykhoanguyen.com`. Cloudflare creates the record itself.
+3. Repeat for `www.henrykhoanguyen.com`.
+
+Add the custom domain through the Pages dashboard rather than writing a CNAME by
+hand. A hand-written record that Pages has not been told about produces a
+[`522` error](https://developers.cloudflare.com/pages/configuration/custom-domains/),
+which looks like a server fault and is not one.
+
+Certificates issue automatically, usually within about fifteen minutes. A
+certificate warning inside that window is expected and not a sign of failure.
+
+### 6e. Afterwards
+
+Re-enable DNSSEC from the Cloudflare side (DNS → Settings → DNSSEC), which gives
+you a `DS` record to paste back into Namecheap. Optional, and safe to do days
+later once you are confident the site is stable.
 
 ## 7. Post-cutover verification
 
@@ -168,14 +250,33 @@ curl -sI https://henrykhoanguyen.com/_app/immutable/ -o /dev/null -w '%{http_cod
 - [ ] Tab through the home page: the skip link is the first stop, focus rings are
       visible in green throughout.
 - [ ] Submit `https://henrykhoanguyen.com/sitemap.xml` in Google Search Console.
+- [ ] **Send yourself an email at any address on this domain**, if you have one.
+      Mail is the thing a nameserver move breaks quietly, and the sooner you find
+      out the less of it you lose.
+
+Then close the loop in `docs/TODO.md`: remove the custom domain from the old
+repository's GitHub Pages settings and delete its `CNAME` file. Leaving the claim
+in place means a stray DNS change silently resurrects the old site rather than
+failing loudly.
 
 ## 8. Rollback
 
-Cloudflare Pages keeps every deployment. Dashboard → Deployments → pick the last
-good one → Rollback. It takes effect immediately and needs no rebuild.
+Three different failures, three different answers. Work out which one you have
+before touching anything.
 
-If the problem is DNS rather than the build, restoring the previous records
-returns you to the old site.
+**A bad deployment** — the site is up but wrong. Cloudflare Pages keeps every
+build: Dashboard → Deployments → pick the last good one → Rollback. Immediate,
+no rebuild.
+
+**A bad cutover** — the domain is on Cloudflare but the Pages project is
+misbehaving. Re-add the four GitHub Pages `A` records in Cloudflare DNS and
+remove the custom domain from the Pages project. You are back on the old site in
+minutes, and the nameservers do not need to move again.
+
+**Nameservers pointed somewhere broken** — the worst case, and almost always
+DNSSEC. Set Namecheap back to **Namecheap BasicDNS** and re-enter the records
+from your 6a screenshot. Recovery is bounded by TTL rather than anything you can
+speed up, which is exactly why 6a is a step rather than a suggestion.
 
 ---
 
