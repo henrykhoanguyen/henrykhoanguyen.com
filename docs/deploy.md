@@ -85,9 +85,34 @@ git push -u origin master
 
 Public or private are both fine; Cloudflare can read either.
 
-## 4. Create the Cloudflare Pages project
+## 4. Create the Cloudflare project
 
-Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git.
+Cloudflare has two products that will serve this site, and the dashboard now
+steers you toward Workers. **If the create form asks for a "deploy command", you
+are in the Workers flow** — Pages never asks for one. Either works; the
+difference is which form you are looking at.
+
+### Workers (what the dashboard offers by default)
+
+Connect the repository, then:
+
+| Setting        | Value                 |
+| -------------- | --------------------- |
+| Build command  | `npm run build`       |
+| Deploy command | `npx wrangler deploy` |
+| Root directory | _(leave blank)_       |
+
+Everything else comes from `wrangler.jsonc`, which is committed: the assets
+directory, and `not_found_handling: "404-page"` so unmatched paths serve
+`build/404.html` rather than falling through to the home page.
+
+No `main` is configured, because there is no server code — every page is
+prerendered. Only Worker invocations are billable and there are none, so this is
+a static site that happens to be deployed as a Worker.
+
+### Pages
+
+Workers & Pages → Create → **Pages** → Connect to Git.
 
 | Setting                | Value                                      |
 | ---------------------- | ------------------------------------------ |
@@ -96,6 +121,13 @@ Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git
 | Build output directory | `build`                                    |
 | Root directory         | _(leave blank)_                            |
 | Node version           | 22 — read from `.nvmrc`, already committed |
+
+Pages serves `404.html` for unmatched paths automatically, so it needs no
+equivalent of the `not_found_handling` setting. `wrangler.jsonc` is ignored here
+and does no harm.
+
+Both read `_redirects` and `_headers` from the build output identically, so the
+resume redirect and the security headers behave the same either way.
 
 If the build fails on Node version, set an environment variable
 `NODE_VERSION = 22` explicitly and rebuild.
@@ -110,7 +142,10 @@ Pages and content:
 - [ ] Home, `/projects`, `/experiences`, `/about`, and all four case studies load.
 - [ ] `/projects/tag/pub-sub` loads — this is the slug that would break first if
       tag slugification regressed.
-- [ ] A made-up path shows `zsh: no such file or directory`.
+- [ ] A made-up path — try `/project` — shows `$ exec ./where_u_thik_u_goin_?`
+      and `zsh: no such file or directory`, with a `404` status. It must not show
+      the home page or play the boot sequence; that was the symptom of there
+      being no `404.html` at all.
 - [ ] `/sitemap.xml` and `/robots.txt` return content.
 - [ ] View source on any page: exactly one `<link rel="canonical">`.
 - [ ] `/Khoa_Nguyen_Resume.pdf` redirects to LinkedIn.

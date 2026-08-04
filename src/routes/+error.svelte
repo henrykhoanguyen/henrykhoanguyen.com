@@ -1,9 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { resolve } from '$app/paths';
+	import NotFound from '$lib/components/NotFound.svelte';
 
-	// In character, but still useful: it says what went wrong and where to go.
-	const command = $derived(page.url.pathname);
+	/*
+		Shown when a navigation fails after the app has booted. The prerendered
+		/404 route covers the other case — a URL the host never had a file for.
+
+		A 404 gets the not-found screen verbatim, so both routes into it look
+		identical. Anything else is a real fault and says so, because "no such
+		file or directory" would be a lie about a 500.
+	*/
 </script>
 
 <svelte:head>
@@ -11,22 +17,15 @@
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
-<section class="py-6">
-	<p class="text-sm text-phosphor-text">
-		<span class="text-phosphor" aria-hidden="true">$ </span>cd {command}
-	</p>
-	<p class="mt-2 text-sm text-phosphor-dim">
-		{#if page.status === 404}
-			zsh: no such file or directory: {command}
-		{:else}
+{#if page.status === 404}
+	<NotFound />
+{:else}
+	<section class="py-6">
+		<p class="text-sm text-phosphor">
+			<span aria-hidden="true">$&nbsp;</span>cd {page.url.pathname}
+		</p>
+		<p class="mt-2 text-sm text-phosphor-dim">
 			zsh: {page.status}: {page.error?.message ?? 'something went wrong'}
-		{/if}
-	</p>
-
-	<p class="mt-8 text-xs text-phosphor-dim">try one of these:</p>
-	<ul class="mt-1.5 list-none space-y-1 p-0 text-xs">
-		<li><a href={resolve('/')}>cd ~</a></li>
-		<li><a href={resolve('/projects')}>ls ./projects</a></li>
-		<li><a href={resolve('/about')}>cat ./about.md</a></li>
-	</ul>
-</section>
+		</p>
+	</section>
+{/if}

@@ -202,11 +202,47 @@ test.describe('command palette', () => {
 });
 
 test.describe('errors', () => {
+	/*
+		The 404 is a prerendered file, not a client-side render. Without
+		build/404.html a static host answers an unknown path with index.html, and
+		the visitor gets the home page and its boot sequence instead of an error —
+		which is exactly the bug these cover.
+	*/
 	test('an unknown path renders the terminal 404', async ({ page }) => {
 		const response = await page.goto('/does-not-exist');
+
 		expect(response?.status()).toBe(404);
-		await expect(page.getByText(/no such file or directory/)).toBeVisible();
-		await expect(page.getByRole('link', { name: 'cd ~' })).toBeVisible();
+		await expect(page.getByText('exec ./where_u_thik_u_goin_?')).toBeVisible();
+		await expect(page.getByText('zsh: no such file or directory')).toBeVisible();
+	});
+
+	test('the 404 is not the home page wearing a costume', async ({ page }) => {
+		await page.goto('/project');
+
+		// The tell for the old bug: the hero and the listings turning up on a URL
+		// that was never a route.
+		await expect(page.getByRole('heading', { level: 1 })).toHaveCount(0);
+		await expect(page.getByRole('list', { name: 'Featured projects' })).toHaveCount(0);
+	});
+
+	test('the prompt reports an unknown path as guest', async ({ page }) => {
+		await page.goto('/project');
+		await expect(page.getByRole('banner')).toContainText('guest@henrykhoanguyen');
+	});
+
+	test('it works without JavaScript, being a real file', async ({ browser }) => {
+		const context = await browser.newContext({ javaScriptEnabled: false });
+		const page = await context.newPage();
+
+		await page.goto('/does-not-exist');
+		await expect(page.getByText('zsh: no such file or directory')).toBeVisible();
+
+		await context.close();
+	});
+
+	test('it is kept out of the index', async ({ page }) => {
+		await page.goto('/does-not-exist');
+		await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
 	});
 
 	test('an unknown stack tag 404s rather than showing an empty list', async ({ page }) => {
