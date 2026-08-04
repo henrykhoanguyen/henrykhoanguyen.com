@@ -25,7 +25,7 @@
 	<meta name="description" content="Roles and work history for {data.name}." />
 </svelte:head>
 
-<PageHeader command="cat ./experiences" />
+<PageHeader command="ls ./experiences --details" />
 <DirectoryList items={rows} ariaLabel="Work experience" />
 
 <QuietLink href="https://www.linkedin.com/in/henrykhoanguyen/" margin="mt-8">

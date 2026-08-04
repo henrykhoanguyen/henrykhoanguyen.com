@@ -38,3 +38,16 @@ describe('keystrokeDelay', () => {
 		expect(samples.every((d) => d > 0 && d < 500)).toBe(true);
 	});
 });
+
+describe('ellipses', () => {
+	const mid = () => 0.5;
+
+	it('lands each dot slower than a letter, so a pause reads as work', () => {
+		expect(keystrokeDelay('.', mid)).toBeGreaterThan(keystrokeDelay('a', mid));
+	});
+
+	it('stays quicker than a full stop would be at reading pace', () => {
+		// Slow enough to notice, not slow enough to wait through.
+		expect(keystrokeDelay('.', mid)).toBeLessThan(150);
+	});
+});

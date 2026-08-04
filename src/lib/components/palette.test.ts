@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { filterItems, moveSelection, withGroupHeadings } from './palette.js';
+import { filterItems, isAction, moveSelection, withGroupHeadings } from './palette.js';
+import { EXIT_KEYWORDS } from './logout.js';
 import type { PaletteItem } from './palette.js';
 
 const items: PaletteItem[] = [
@@ -92,5 +93,31 @@ describe('withGroupHeadings', () => {
 			{ label: 'c', href: '/c', group: 'x' }
 		];
 		expect(withGroupHeadings(alternating).map((r) => r.heading)).toEqual(['x', 'y', 'x']);
+	});
+});
+
+describe('the exit entry', () => {
+	const exit = { label: 'exit', group: 'session', keywords: EXIT_KEYWORDS, run: () => {} };
+	const all = [...items, exit];
+
+	it('is an action, not a link', () => {
+		expect(isAction(exit)).toBe(true);
+		expect(isAction(items[0])).toBe(false);
+	});
+
+	it('closes the list', () => {
+		expect(filterItems(all, '').at(-1)?.label).toBe('exit');
+	});
+
+	it.each(['quit', ':q!', ':q', 'logout', 'exit'])('surfaces when you type %s', (query) => {
+		expect(filterItems(all, query).map((i) => i.label)).toContain('exit');
+	});
+
+	it('is the only match for the ones nothing else uses', () => {
+		expect(filterItems(all, ':q!').map((i) => i.label)).toEqual(['exit']);
+	});
+
+	it('does not intrude on an unrelated search', () => {
+		expect(filterItems(all, 'retail').map((i) => i.label)).not.toContain('exit');
 	});
 });

@@ -6,6 +6,8 @@
 	import CommandPalette from '$lib/components/CommandPalette.svelte';
 	import LoginBanner from '$lib/components/LoginBanner.svelte';
 	import { boot } from '$lib/components/boot-state.svelte.js';
+	import LogoutScreen from '$lib/components/LogoutScreen.svelte';
+	import { session } from '$lib/components/exit-state.svelte.js';
 	import { page } from '$app/state';
 	import { absolute } from '$lib/site.js';
 
@@ -35,25 +37,33 @@
 	Keyboard users land here first. Hidden until focused, then pinned top-left so
 	it is actually visible at the moment it matters.
 -->
-<a
-	href="#main"
-	class="sr-only rounded-sm bg-phosphor px-3 py-2 text-xs text-phosphor-bg focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50"
->
-	Skip to content
-</a>
-
-<div class="mx-auto min-h-dvh max-w-2xl px-5 py-10 sm:px-8">
+{#if session.exited}
 	<!--
+		Everything is gone on purpose: nav, banner, footer, palette. A logout screen
+		that still had chrome around it would not read as a closed session.
+	-->
+	<LogoutScreen />
+{:else}
+	<a
+		href="#main"
+		class="sr-only rounded-sm bg-phosphor px-3 py-2 text-xs text-phosphor-bg focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50"
+	>
+		Skip to content
+	</a>
+
+	<div class="mx-auto min-h-dvh max-w-2xl px-5 py-10 sm:px-8">
+		<!--
 		The session banner precedes the prompt it belongs to, which is why it sits
 		above the nav rather than inside the page. Only the home page animates, so
 		only there does it carry the skip hint.
 	-->
-	<LoginBanner showSkipHint={boot.animating} />
-	<SiteHeader />
-	<main id="main">
-		{@render children()}
-	</main>
-	<SiteFooter links={data.links} />
-</div>
+		<LoginBanner showSkipHint={boot.animating} />
+		<SiteHeader />
+		<main id="main">
+			{@render children()}
+		</main>
+		<SiteFooter links={data.links} />
+	</div>
 
-<CommandPalette items={data.palette} />
+	<CommandPalette items={data.palette} />
+{/if}

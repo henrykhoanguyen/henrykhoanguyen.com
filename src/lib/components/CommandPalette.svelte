@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { filterItems, moveSelection, withGroupHeadings } from './palette.js';
+	import { filterItems, isAction, moveSelection, withGroupHeadings } from './palette.js';
+	import { EXIT_KEYWORDS } from './logout.js';
+	import { session } from './exit-state.svelte.js';
 	import { palette } from './palette-state.svelte.js';
 	import type { PaletteItem } from './palette.js';
 
@@ -15,20 +17,37 @@
 	 */
 	let { items }: { items: PaletteItem[] } = $props();
 
+	/*
+		Links come from the server load; the exit entry is added here because a
+		function cannot be serialised across that boundary. It is appended last so
+		it always closes the list, and carries the words someone would actually
+		reach for — `quit`, `:q!` — rather than only its own label.
+	*/
+	const all = $derived<PaletteItem[]>([
+		...items,
+		{
+			label: 'exit',
+			group: 'session',
+			keywords: EXIT_KEYWORDS,
+			run: () => session.exit()
+		}
+	]);
+
 	let dialog = $state<HTMLDialogElement>();
 	let query = $state('');
 	let selected = $state(0);
 
 	/*
-		Results are real anchors, and Enter clicks the selected one rather than
-		calling goto(). Three things fall out of that: entries pointing at an
-		external repo work without special-casing, middle-click and
+		Results that navigate are real anchors, and Enter clicks the selected one
+		rather than calling goto(). Three things fall out of that: entries pointing
+		at an external repo work without special-casing, middle-click and
 		open-in-new-tab behave as expected, and SvelteKit still upgrades internal
-		links to client-side navigation on its own.
+		links to client-side navigation on its own. Actions are buttons, and Enter
+		clicks those the same way.
 	*/
-	let anchors: HTMLAnchorElement[] = $state([]);
+	let entries: HTMLElement[] = $state([]);
 
-	const results = $derived(filterItems(items, query));
+	const results = $derived(filterItems(all, query));
 	const grouped = $derived(withGroupHeadings(results));
 
 	// Selection can outrun a shrinking result list as the query narrows.
@@ -54,7 +73,7 @@
 	});
 
 	function choose() {
-		anchors[selected]?.click();
+		entries[selected]?.click();
 	}
 
 	function onWindowKeydown(event: KeyboardEvent) {
@@ -116,27 +135,48 @@
 		id="palette-results"
 		class="m-0 max-h-[min(18rem,calc(100dvh-14rem))] list-none overflow-y-auto p-1 text-sm"
 	>
-		{#each grouped as { item, heading }, i (item.href)}
+		{#each grouped as { item, heading }, i (item.label + item.group)}
 			{#if heading}
 				<li class="px-2 pt-2 pb-1 text-xs text-phosphor-dim" aria-hidden="true">{heading}</li>
 			{/if}
 			<li>
-				<a
-					bind:this={anchors[i]}
-					href={item.href}
-					class="flex w-full items-baseline gap-2 rounded-sm px-2 py-1.5 text-left no-underline hover:bg-secondary hover:no-underline"
-					class:bg-secondary={i === selected}
-					class:text-phosphor={i === selected}
-					target={/^https?:\/\//.test(item.href) ? '_blank' : undefined}
-					rel={/^https?:\/\//.test(item.href) ? 'noopener noreferrer' : undefined}
-					onmouseenter={() => (selected = i)}
-					onclick={() => palette.close()}
-				>
+				{#snippet row()}
 					<span class="shrink-0 text-xs text-phosphor-dim" aria-hidden="true">
 						{i === selected ? '>' : ' '}
 					</span>
 					<span class="min-w-0 truncate">{item.label}</span>
-				</a>
+				{/snippet}
+
+				{#if isAction(item)}
+					<button
+						bind:this={entries[i]}
+						type="button"
+						class="flex w-full items-baseline gap-2 rounded-sm px-2 py-1.5 text-left hover:bg-secondary"
+						class:bg-secondary={i === selected}
+						class:text-phosphor={i === selected}
+						onmouseenter={() => (selected = i)}
+						onclick={() => {
+							palette.close();
+							item.run();
+						}}
+					>
+						{@render row()}
+					</button>
+				{:else}
+					<a
+						bind:this={entries[i]}
+						href={item.href}
+						class="flex w-full items-baseline gap-2 rounded-sm px-2 py-1.5 text-left no-underline hover:bg-secondary hover:no-underline"
+						class:bg-secondary={i === selected}
+						class:text-phosphor={i === selected}
+						target={/^https?:\/\//.test(item.href) ? '_blank' : undefined}
+						rel={/^https?:\/\//.test(item.href) ? 'noopener noreferrer' : undefined}
+						onmouseenter={() => (selected = i)}
+						onclick={() => palette.close()}
+					>
+						{@render row()}
+					</a>
+				{/if}
 			</li>
 		{/each}
 
