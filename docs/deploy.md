@@ -85,52 +85,75 @@ git push -u origin master
 
 Public or private are both fine; Cloudflare can read either.
 
-## 4. Create the Cloudflare project
-
-Cloudflare has two products that will serve this site, and the dashboard now
-steers you toward Workers. **If the create form asks for a "deploy command", you
-are in the Workers flow** — Pages never asks for one. Either works; the
-difference is which form you are looking at.
-
-### Workers (what the dashboard offers by default)
-
-Connect the repository, then:
-
-| Setting        | Value                 |
-| -------------- | --------------------- |
-| Build command  | `npm run build`       |
-| Deploy command | `npx wrangler deploy` |
-| Root directory | _(leave blank)_       |
-
-Everything else comes from `wrangler.jsonc`, which is committed: the assets
-directory, and `not_found_handling: "404-page"` so unmatched paths serve
-`build/404.html` rather than falling through to the home page.
-
-No `main` is configured, because there is no server code — every page is
-prerendered. Only Worker invocations are billable and there are none, so this is
-a static site that happens to be deployed as a Worker.
-
-### Pages
+## 4. Create the Cloudflare Pages project
 
 Workers & Pages → Create → **Pages** → Connect to Git.
 
 | Setting                | Value                                      |
 | ---------------------- | ------------------------------------------ |
-| Framework preset       | SvelteKit _(or None)_                      |
+| Framework preset       | **None**                                   |
 | Build command          | `npm run build`                            |
 | Build output directory | `build`                                    |
 | Root directory         | _(leave blank)_                            |
 | Node version           | 22 — read from `.nvmrc`, already committed |
 
-Pages serves `404.html` for unmatched paths automatically, so it needs no
-equivalent of the `not_found_handling` setting. `wrangler.jsonc` is ignored here
-and does no harm.
+**Do not pick the SvelteKit preset.** It sets the output directory to
+`.svelte-kit/cloudflare`, which is where `adapter-cloudflare` writes. This site
+uses `adapter-static` and writes to `build`. The preset would give you a build
+that succeeds and deploys nothing recognisable.
 
-Both read `_redirects` and `_headers` from the build output identically, so the
-resume redirect and the security headers behave the same either way.
+**There is no deploy command on Pages**, and no field asking for one. Pages
+uploads the contents of the output directory itself once the build command
+exits 0. If a form is asking you for a deploy command, you are in the Workers
+create flow rather than the Pages one — see below.
+
+Pages serves `404.html` automatically for paths that match no file, which is
+what makes the prerendered `/404` route work with no configuration at all.
+
+`_redirects` and `_headers` are read from the build output, so the resume
+redirect and the security headers need nothing further.
 
 If the build fails on Node version, set an environment variable
 `NODE_VERSION = 22` explicitly and rebuild.
+
+### Do not add a Wrangler config file for Pages
+
+Tempting, and wrong here. Once a Pages project sees a `wrangler.toml` or
+`wrangler.jsonc`, that file becomes the **source of truth** and the matching
+dashboard fields become read-only. It also requires a `pages_build_output_dir`
+key, and rejects Workers-only keys such as `main` and `assets`.
+
+This project has no Functions, no bindings, and no environment variables, so
+there is nothing for such a file to carry. Leaving it out keeps the dashboard
+editable.
+
+### If you end up on Workers instead
+
+Workers will serve this site equally well, and the dashboard increasingly steers
+people there. That path does want a deploy command, and a Wrangler config:
+
+| Setting        | Value                 |
+| -------------- | --------------------- |
+| Build command  | `npm run build`       |
+| Deploy command | `npx wrangler deploy` |
+
+```jsonc
+// wrangler.jsonc — only for the Workers path, not Pages
+{
+	"name": "henrykhoanguyen-com",
+	"compatibility_date": "2026-08-04",
+	"assets": {
+		"directory": "./build",
+		"not_found_handling": "404-page"
+	}
+}
+```
+
+No `main`, because there is no server code — every page is prerendered, so
+nothing invokes a Worker and nothing is billable. `not_found_handling` is
+required there: unlike Pages, Workers will not reach for `404.html` on its own,
+and without it an unknown path falls back to `index.html` and serves the home
+page.
 
 ## 5. Verify on the pages.dev URL — before touching DNS
 

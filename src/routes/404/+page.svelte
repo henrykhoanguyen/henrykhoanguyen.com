@@ -9,9 +9,10 @@
 		URL like /project, meant serving index.html and playing the boot sequence
 		as though nothing were wrong.
 
-		Cloudflare Pages serves /404.html for unmatched paths automatically. On
-		Workers static assets the same behaviour needs
-		`assets.not_found_handling: "404-page"`, which is set in wrangler.jsonc.
+		Cloudflare Pages serves /404.html for unmatched paths automatically, so
+		this file is the whole fix there. Deploying to Workers static assets
+		instead would additionally need `assets.not_found_handling: "404-page"`
+		in a Wrangler config — see docs/deploy.md.
 	*/
 </script>
 
