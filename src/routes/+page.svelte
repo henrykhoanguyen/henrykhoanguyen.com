@@ -145,18 +145,15 @@
 {/if}
 
 <!--
-	Section spacing lives here rather than on PromptHeading.
-
-	The heading carries `mt-12 first:mt-0`, which works when headings are siblings
-	on a page — as they are on /about. Inside a <section> every heading is a first
-	child, so that rule zeroes all of them and the sections collide. The wrapper
-	owns the gap instead, and `first:mt-0` on the wrapper keeps whichever section
-	is currently topmost from being pushed off the header.
+	Section spacing lives on these wrappers, and each heading inside asks for no
+	top margin of its own. Both are explicit: relying on `first:mt-0` meant the
+	gap silently changed whenever anything was inserted above a heading.
 -->
 {#if reached(step, 'projectsCommand')}
 	<section class="mt-12 first:mt-0">
 		<PromptHeading
 			command="ls ./projects --featured"
+			topMargin="mt-0"
 			phase={stateFor(step, 'projectsCommand')}
 			onfinish={() => revealThenContinue('projectsBody')}
 		/>
@@ -172,6 +169,7 @@
 	<section class="mt-12 first:mt-0">
 		<PromptHeading
 			command="ls ./experiences"
+			topMargin="mt-0"
 			phase={stateFor(step, 'experienceCommand')}
 			onfinish={() => revealThenContinue('experienceBody')}
 		/>
@@ -187,6 +185,7 @@
 	<section class="mt-12 first:mt-0">
 		<PromptHeading
 			command="ls ./skills"
+			topMargin="mt-0"
 			phase={stateFor(step, 'skillsCommand')}
 			onfinish={() => revealThenContinue('skillsBody')}
 		/>

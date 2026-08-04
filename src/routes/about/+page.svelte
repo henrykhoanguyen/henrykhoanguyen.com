@@ -13,8 +13,8 @@
 </svelte:head>
 
 <!-- `cd ~` rather than `cd ./`: the prompt already calls home `~`, and `./` is where you already are. -->
-<QuietLink href={resolve('/')} margin="mb-4">← cd ~</QuietLink>
-<PromptHeading command="cat ./about.md" />
+<QuietLink href={resolve('/')} margin="mb-1.5">← cd ~</QuietLink>
+<PromptHeading command="cat ./about.md" topMargin="mt-0" />
 
 <div class="prose prose-phosphor">
 	<Body />

@@ -27,8 +27,8 @@
 </svelte:head>
 
 <!-- `cd ~` rather than `cd ./`: the prompt already calls home `~`, and `./` is where you already are. -->
-<QuietLink href={resolve('/')} margin="mb-4">← cd ~</QuietLink>
-<PromptHeading command="cat ./experiences" />
+<QuietLink href={resolve('/')} margin="mb-1.5">← cd ~</QuietLink>
+<PromptHeading command="cat ./experiences" topMargin="mt-0" />
 <DirectoryList items={rows} ariaLabel="Work experience" />
 
 <QuietLink href="https://www.linkedin.com/in/henrykhoanguyen/" margin="mt-8">

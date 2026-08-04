@@ -14,11 +14,21 @@
 		command,
 		id,
 		phase = 'done',
+		topMargin = 'mt-12',
 		onfinish
 	}: {
 		command: string;
 		id?: string;
 		phase?: 'pending' | 'typing' | 'done';
+		/*
+			Explicit rather than `first:mt-0`.
+
+			That rule meant "no gap when I am the first thing here", which silently
+			stopped applying every time something was inserted above the heading — a
+			section wrapper once, a back-link later — each time adding 3rem nobody
+			asked for. A caller that wants no gap now says so.
+		*/
+		topMargin?: string;
 		onfinish?: () => void;
 	} = $props();
 </script>
@@ -27,7 +37,7 @@
 	scroll-mt keeps an anchored heading clear of the top edge when jumped to,
 	rather than sitting flush against it.
 -->
-<h2 {id} class="mt-12 mb-3 scroll-mt-8 text-xs font-medium text-phosphor first:mt-0">
+<h2 {id} class="{topMargin} mb-3 scroll-mt-8 text-xs font-medium text-phosphor">
 	<!--
 		Decorative. A screen reader should hear "ls ./projects", not "dollar sign".
 

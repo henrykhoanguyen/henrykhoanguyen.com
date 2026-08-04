@@ -67,8 +67,8 @@
 <svelte:document onclick={onDocumentClick} />
 
 <!-- `cd ~` rather than `cd ./`: the prompt already calls home `~`, and `./` is where you already are. -->
-<QuietLink href={resolve('/')} margin="mb-4">← cd ~</QuietLink>
-<PromptHeading command="ls ./projects" />
+<QuietLink href={resolve('/')} margin="mb-1.5">← cd ~</QuietLink>
+<PromptHeading command="ls ./projects" topMargin="mt-0" />
 
 <nav
 	class="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs"
