@@ -17,10 +17,17 @@ All of this runs locally and must be green before anything leaves your machine.
 npm install
 npm run check          # svelte-check: 0 errors
 npm run lint           # prettier + eslint
-npm run test:unit -- --run   # 144 unit tests
+npm run test:unit -- --run   # 230 unit tests
 npm run test:e2e       # playwright smoke suite
 npm run build          # must emit build/
 ```
+
+`test:e2e` installs browsers on first run and builds the site itself before
+starting, so it takes a few minutes cold. It covers the parts of the site that
+only exist in a browser — the boot sequence and its replay rules, skill
+highlighting, the palette, the exit sequence, and the stack filter with
+JavaScript disabled. Those are also the parts most likely to break silently,
+since a broken animation still returns HTTP 200.
 
 Then look at it as a visitor would:
 
@@ -43,6 +50,24 @@ The only gate a machine cannot check.
 - [ ] Confirm the metrics you are comfortable stating: 13 million vehicles, four
       nines, 500,000 messages/sec, 20–50ms, roughly 20 minutes, 25%, 5%, 30%.
 - [ ] Confirm graduation reads 2019 and that this matches LinkedIn.
+- [ ] Read the one-line `summary` on each role in
+      `src/content/experiences/*.md`. These are the only words about your jobs
+      that appear on the home page, so they carry more weight than their length
+      suggests — and you said you would revisit them.
+- [ ] Check the `skills` list in `src/content/about.md`. Every entry is a claim a
+      recruiter may ask you to defend, and hovering one highlights exactly where
+      you say you used it.
+- [ ] **Decide what the home page skills row should contain.** There are two
+      lists and they are built differently. `/about` renders the curated 16 in
+      `about.md`. The home row is derived from every `stack` in your content, so
+      it shows 23 — the extra seven are `Angular`, `Express`, `MongoDB`,
+      `Node.js`, `Oracle`, `PHP`, and `WordPress`. They arrive from the football
+      analyzer and the UCI role. Alphabetical order puts `Angular` second, which
+      is a loud opening for a backend and data engineer. Three ways out, all
+      cheap: leave it (the tags are true and the case studies carry the weight),
+      trim the stacks in those two files, or point the row at `about.md` instead
+      by swapping `getSkills()` for `getAbout().skills` in `+page.server.ts` —
+      though that reintroduces the drift risk of two lists maintained by hand.
 
 ## 3. Push to GitHub
 
@@ -74,14 +99,38 @@ If the build fails on Node version, set an environment variable
 This is the step that makes the cutover safe. Cloudflare gives you
 `<project>.pages.dev` immediately. Your real domain is still untouched.
 
-- [ ] Home, `/projects`, `/about`, and all four case studies load.
-- [ ] `⌘K` opens the palette; typing `retail` then Enter navigates.
+Pages and content:
+
+- [ ] Home, `/projects`, `/experiences`, `/about`, and all four case studies load.
 - [ ] `/projects/tag/pub-sub` loads — this is the slug that would break first if
       tag slugification regressed.
 - [ ] A made-up path shows `zsh: no such file or directory`.
 - [ ] `/sitemap.xml` and `/robots.txt` return content.
 - [ ] View source on any page: exactly one `<link rel="canonical">`.
 - [ ] `/Khoa_Nguyen_Resume.pdf` redirects to LinkedIn.
+
+The interactive layer — none of it is exercised by a plain page load, and all of
+it depends on client JavaScript that only runs on the deployed bundle:
+
+- [ ] The boot sequence plays once on first load: skills, then experiences, then
+      projects, then the hero. Any key, click, or scroll skips it.
+- [ ] Reload the tab — it plays again. Click `← cd ~` from a subpage — it does
+      not. Click the header prompt — it does.
+- [ ] Hover a skill: unrelated rows dim. Click one: it stays. Click dead space:
+      it clears.
+- [ ] `⌘K` opens the palette; typing `retail` then Enter navigates. The badge is
+      clickable too.
+- [ ] Type `exit` in the palette: the logout sequence plays, the nav and footer
+      go with it, and `click to restore` brings the site back.
+- [ ] The login banner shows a plausible date and sits directly above the prompt.
+      First visit has nothing to compare against, so open a private window to see
+      what a stranger sees.
+- [ ] The header prompt reads `proj@henrykhoanguyen ~/retail-data-platform` on a
+      case study, and `home@…  ~` on the home page.
+
+The one thing to check with JavaScript disabled: every page still renders its
+content, including the listings and the stack filter, since those are real
+prerendered routes rather than client-side state.
 
 The canonical tags and sitemap will point at `henrykhoanguyen.com` rather than
 `pages.dev`. That is correct and needs no change.

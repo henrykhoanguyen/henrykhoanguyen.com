@@ -252,3 +252,179 @@ test.describe('deployment metadata', () => {
 		expect(await response.text()).toContain('Sitemap: https://henrykhoanguyen.com/sitemap.xml');
 	});
 });
+
+test.describe('skills', () => {
+	/*
+		Reduced motion renders the page complete on arrival. Pressing a key to skip
+		the intro would race hydration: land the keystroke before the listener is
+		attached and the test waits on an animation nobody cancelled.
+	*/
+	test.use({ reducedMotion: 'reduce' });
+
+	/*
+		The row a skill lights up is derived from frontmatter `stack`, so these
+		assert against real content: BigQuery appears only under H-E-B, and PHP
+		only under UCI. If either role's stack changes, these should fail rather
+		than quietly keep passing.
+	*/
+	const rowFor = (page: Page, company: string) =>
+		page
+			.getByRole('list', { name: 'Work experience' })
+			.getByRole('listitem')
+			.filter({ hasText: company })
+			.locator('a, div')
+			.first();
+
+	test('hovering a skill dims every row that does not use it', async ({ page }) => {
+		await page.goto('/');
+
+		await page.getByRole('button', { name: 'bigquery' }).hover();
+
+		await expect(rowFor(page, 'H-E-B')).not.toHaveClass(/opacity-30/);
+		await expect(rowFor(page, 'General Motors')).toHaveClass(/opacity-30/);
+		await expect(rowFor(page, 'UCI')).toHaveClass(/opacity-30/);
+	});
+
+	test('the highlight releases when the pointer leaves', async ({ page }) => {
+		await page.goto('/');
+
+		await page.getByRole('button', { name: 'bigquery' }).hover();
+		await expect(rowFor(page, 'UCI')).toHaveClass(/opacity-30/);
+
+		// Somewhere with no skill under it.
+		await page.getByRole('heading', { level: 1 }).hover();
+		await expect(rowFor(page, 'UCI')).not.toHaveClass(/opacity-30/);
+	});
+
+	test('clicking pins a skill so it survives the pointer leaving', async ({ page }) => {
+		await page.goto('/');
+
+		const php = page.getByRole('button', { name: 'php' });
+		await php.click();
+		await expect(php).toHaveAttribute('aria-pressed', 'true');
+
+		await page.getByRole('heading', { level: 1 }).hover();
+		await expect(rowFor(page, 'UCI')).not.toHaveClass(/opacity-30/);
+		await expect(rowFor(page, 'H-E-B')).toHaveClass(/opacity-30/);
+
+		await php.click();
+		await expect(php).toHaveAttribute('aria-pressed', 'false');
+		await expect(rowFor(page, 'H-E-B')).not.toHaveClass(/opacity-30/);
+	});
+
+	test('clicking dead space clears the pin', async ({ page }) => {
+		await page.goto('/');
+
+		const php = page.getByRole('button', { name: 'php' });
+		await php.click();
+		await expect(php).toHaveAttribute('aria-pressed', 'true');
+
+		await page.getByRole('main').click({ position: { x: 5, y: 5 } });
+		await expect(php).toHaveAttribute('aria-pressed', 'false');
+	});
+
+	test('no skill is a dead end', async ({ page }) => {
+		// A chip that highlights nothing would be a broken affordance. The skill
+		// list is derived from the same stacks that drive dimming, so every one
+		// of them must leave at least one row lit.
+		await page.goto('/');
+
+		const skills = page.locator('li button[aria-pressed]');
+		const count = await skills.count();
+		expect(count).toBeGreaterThan(0);
+
+		for (let i = 0; i < count; i++) {
+			await skills.nth(i).hover();
+			const dimmed = page.locator('li > .opacity-30');
+			const rows = page.locator('li > :is(a, div)');
+			expect(await dimmed.count()).toBeLessThan(await rows.count());
+		}
+	});
+
+	test('announces the match count for screen readers', async ({ page }) => {
+		await page.goto('/');
+
+		await page.getByRole('button', { name: 'bigquery' }).hover();
+		// Dimming is visual only, so the count carries the same information.
+		await expect(page.getByText(/\d+ entries use BigQuery/)).toBeAttached();
+	});
+});
+
+test.describe('the intro', () => {
+	test('does not replay when returning home from a subpage', async ({ page }) => {
+		await page.goto('/');
+		// Let the first run finish rather than racing it — the point of the test
+		// is what happens on the way back, not how it was cut short.
+		await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 20_000 });
+
+		await page.getByRole('link', { name: 'projects', exact: true }).click();
+		await expect(page).toHaveURL('/projects');
+		await page.getByRole('link', { name: /cd ~/ }).click();
+		await expect(page).toHaveURL('/');
+
+		/*
+			During the sequence the hero does not exist yet — it is the last thing
+			mounted, several seconds in. Requiring it almost immediately is what
+			makes this a test of the gate rather than of patience.
+		*/
+		await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 400 });
+	});
+
+	test('replays when the header prompt is clicked', async ({ page }) => {
+		await page.goto('/');
+		await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 20_000 });
+		await page.getByRole('link', { name: 'about', exact: true }).click();
+
+		await page
+			.getByRole('banner')
+			.getByRole('link', { name: /henrykhoanguyen/ })
+			.click();
+		await expect(page).toHaveURL('/');
+		// The hero arrives last, so it is absent while the sequence runs.
+		await expect(page.getByRole('heading', { level: 1 })).toHaveCount(0);
+	});
+});
+
+test.describe('exit', () => {
+	test('quitting replaces the page with a logout screen', async ({ page }) => {
+		await page.goto('/');
+		await page.keyboard.press('ControlOrMeta+k');
+		await page.keyboard.type(':q!');
+		await page.keyboard.press('Enter');
+
+		await expect(page.getByText('logout')).toBeVisible();
+		// Skip the sequence, then the only thing on screen is the way back.
+		await page.keyboard.press('Space');
+		await expect(page.getByRole('button', { name: 'click to restore' })).toBeVisible();
+	});
+
+	test('takes the whole site with it', async ({ page }) => {
+		await page.goto('/');
+		await page.keyboard.press('ControlOrMeta+k');
+		await page.keyboard.type('exit');
+		await page.keyboard.press('Enter');
+
+		await expect(page.getByRole('navigation', { name: 'Main' })).not.toBeVisible();
+		await expect(page.getByRole('contentinfo')).not.toBeVisible();
+	});
+
+	test('restores the site', async ({ page }) => {
+		await page.goto('/');
+		await page.keyboard.press('ControlOrMeta+k');
+		await page.keyboard.type('quit');
+		await page.keyboard.press('Enter');
+		await page.keyboard.press('Space');
+
+		await page.getByRole('button', { name: 'click to restore' }).click();
+		await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible();
+	});
+});
+
+test.describe('the header prompt', () => {
+	test('reports where you are', async ({ page }) => {
+		await page.goto('/projects/retail-data-platform');
+		await expect(page.getByRole('banner')).toContainText(
+			'proj@henrykhoanguyen ~/retail-data-platform'
+		);
+	});
+});
