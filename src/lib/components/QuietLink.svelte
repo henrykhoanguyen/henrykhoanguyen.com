@@ -2,15 +2,16 @@
 	import type { Snippet } from 'svelte';
 
 	/**
-	 * The "there is more this way" link that closes a listing.
+	 * A quiet link on a line of its own — the site's exits and back-links.
 	 *
-	 * Three of these exist — see all projects, see full history, full history on
-	 * LinkedIn — and they were drifting: the two internal ones were styled at the
-	 * call site while the external one fell through to the global anchor rule and
-	 * came out brighter than the rest.
+	 * `see all projects →`, `← cd ~`, `full history on linkedin ↗`. They were
+	 * drifting before this existed: internal ones styled at the call site, the
+	 * external one falling through to the global anchor rule and coming out
+	 * brighter than the rest.
 	 *
-	 * Dim rather than accent-green on purpose. These are exits, not the point of
-	 * the page; they should be findable when looked for and quiet when not.
+	 * Dim rather than accent-green on purpose. These are ways out, not the point
+	 * of the page; they should be findable when looked for and quiet when not.
+	 * The arrow is content, so the same component serves both directions.
 	 */
 	let {
 		href,

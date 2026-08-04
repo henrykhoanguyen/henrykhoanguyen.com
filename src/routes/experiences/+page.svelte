@@ -1,7 +1,8 @@
 <script lang="ts">
 	import PromptHeading from '$lib/components/PromptHeading.svelte';
 	import DirectoryList from '$lib/components/DirectoryList.svelte';
-	import MoreLink from '$lib/components/MoreLink.svelte';
+	import QuietLink from '$lib/components/QuietLink.svelte';
+	import { resolve } from '$app/paths';
 	import type { DirectoryRow } from '$lib/components/directory.js';
 	import { experienceRow } from '$lib/content/rows.js';
 
@@ -25,9 +26,11 @@
 	<meta name="description" content="Roles and work history for {data.name}." />
 </svelte:head>
 
+<!-- `cd ~` rather than `cd ./`: the prompt already calls home `~`, and `./` is where you already are. -->
+<QuietLink href={resolve('/')} margin="mb-4">← cd ~</QuietLink>
 <PromptHeading command="cat ./experiences" />
 <DirectoryList items={rows} ariaLabel="Work experience" />
 
-<MoreLink href="https://www.linkedin.com/in/henrykhoanguyen/" margin="mt-8">
+<QuietLink href="https://www.linkedin.com/in/henrykhoanguyen/" margin="mt-8">
 	full history on linkedin ↗
-</MoreLink>
+</QuietLink>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PromptHeading from './PromptHeading.svelte';
+	import QuietLink from './QuietLink.svelte';
 	import DirectoryList from './DirectoryList.svelte';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
@@ -65,6 +66,8 @@
 
 <svelte:document onclick={onDocumentClick} />
 
+<!-- `cd ~` rather than `cd ./`: the prompt already calls home `~`, and `./` is where you already are. -->
+<QuietLink href={resolve('/')} margin="mb-4">← cd ~</QuietLink>
 <PromptHeading command="ls ./projects" />
 
 <nav

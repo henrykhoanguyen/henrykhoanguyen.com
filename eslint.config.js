@@ -52,9 +52,9 @@ export default defineConfig(
 			// the experience anchor. The rule only recognises a bare resolve() call,
 			// not one inside a template literal.
 			'src/lib/components/SiteHeader.svelte',
-			// MoreLink takes an href that is internal or external depending on the
+			// QuietLink takes an href that is internal or external depending on the
 			// caller; internal ones are resolved before being passed in.
-			'src/lib/components/MoreLink.svelte'
+			'src/lib/components/QuietLink.svelte'
 		],
 		rules: { 'svelte/no-navigation-without-resolve': 'off' }
 	}

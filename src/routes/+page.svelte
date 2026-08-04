@@ -5,7 +5,7 @@
 	import Hero from '$lib/components/Hero.svelte';
 	import PromptHeading from '$lib/components/PromptHeading.svelte';
 	import DirectoryList from '$lib/components/DirectoryList.svelte';
-	import MoreLink from '$lib/components/MoreLink.svelte';
+	import QuietLink from '$lib/components/QuietLink.svelte';
 	import SkillFilter from '$lib/components/SkillFilter.svelte';
 	import Hint from '$lib/components/Hint.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
@@ -163,7 +163,7 @@
 
 		{#if reached(step, 'projectsBody')}
 			<DirectoryList items={projectRows} ariaLabel="Featured projects" />
-			<MoreLink href={resolve('/projects')}>see all projects →</MoreLink>
+			<QuietLink href={resolve('/projects')}>see all projects →</QuietLink>
 		{/if}
 	</section>
 {/if}
@@ -178,7 +178,7 @@
 
 		{#if reached(step, 'experienceBody')}
 			<DirectoryList items={experienceRows} ariaLabel="Work experience" />
-			<MoreLink href={resolve('/experiences')}>see full history →</MoreLink>
+			<QuietLink href={resolve('/experiences')}>see full history →</QuietLink>
 		{/if}
 	</section>
 {/if}

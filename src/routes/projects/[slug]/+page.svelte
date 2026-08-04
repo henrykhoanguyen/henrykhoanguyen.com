@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import QuietLink from '$lib/components/QuietLink.svelte';
 	import { formatDate } from '$lib/content/format.js';
 
 	let { data } = $props();
@@ -16,11 +17,7 @@
 
 <article>
 	<header class="mb-8 border-b border-phosphor-rule pb-5">
-		<p class="mb-1.5 text-xs">
-			<a href={resolve('/projects')} class="text-phosphor-dim hover:text-phosphor">
-				← ls ./projects
-			</a>
-		</p>
+		<QuietLink href={resolve('/projects')} margin="mb-1.5">← cd ./projects</QuietLink>
 		<h1 class="text-lg font-medium text-phosphor-text">{data.project.title}</h1>
 		<p class="mt-1.5 max-w-[60ch] text-sm leading-relaxed text-phosphor-dim">
 			{data.project.summary}

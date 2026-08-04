@@ -1,5 +1,7 @@
 <script lang="ts">
 	import PromptHeading from '$lib/components/PromptHeading.svelte';
+	import QuietLink from '$lib/components/QuietLink.svelte';
+	import { resolve } from '$app/paths';
 
 	let { data } = $props();
 	const Body = $derived(data.body);
@@ -10,6 +12,8 @@
 	<meta name="description" content={data.about.tagline} />
 </svelte:head>
 
+<!-- `cd ~` rather than `cd ./`: the prompt already calls home `~`, and `./` is where you already are. -->
+<QuietLink href={resolve('/')} margin="mb-4">← cd ~</QuietLink>
 <PromptHeading command="cat ./about.md" />
 
 <div class="prose prose-phosphor">
