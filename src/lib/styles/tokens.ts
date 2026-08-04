@@ -24,5 +24,3 @@ export const tokens = {
 
 /** Token names carrying text, and therefore subject to WCAG AA assertions. */
 export const textTokens = ['greenBright', 'greenText', 'greenDim'] as const;
-
-export type TokenName = keyof typeof tokens;
