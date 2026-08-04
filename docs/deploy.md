@@ -235,9 +235,21 @@ Look specifically for:
   records to `185.199.108.153` through `185.199.111.153`, and probably a `www`
   `CNAME` to `henrykhoanguyen.github.io`.
 
+**Checked on 4 August: there are no `MX` records and no `TXT` records.** No mail
+touches this domain, so the failure mode that makes nameserver moves frightening
+does not apply here. What remains is the website and DNSSEC.
+
 ### 6b. Add the zone to Cloudflare and check the import
 
 Cloudflare dashboard → Add a domain → `henrykhoanguyen.com` → Free plan.
+
+**Choose "Connect a domain", not "Transfer".** Connect makes Cloudflare
+authoritative for DNS while the registration stays at Namecheap, which is all
+this cutover needs. Transfer moves the registration itself — auth codes,
+registrar locks, ICANN's 60-day rules — and folding a registrar migration into a
+host migration means two things can fail at once and a rollback has to unpick
+both. Transferring later, once the site is stable, is a fine idea and a separate
+afternoon.
 
 Cloudflare scans your current DNS and imports what it finds. **The scan is best
 effort, not a guarantee.** Compare every row against your screenshot and add
