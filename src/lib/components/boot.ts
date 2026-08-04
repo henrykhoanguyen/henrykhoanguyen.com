@@ -52,3 +52,44 @@ export function stateFor(current: Step, step: Step): 'pending' | 'typing' | 'don
 export function next(step: Step): Step {
 	return STEPS[Math.min(indexOf(step) + 1, STEPS.length - 1)];
 }
+
+/**
+ * Decides whether the home page should play its sequence.
+ *
+ * The animation belongs to arriving, not to being on the page. A fresh load —
+ * first visit, refresh, a link from elsewhere — is an arrival and plays it.
+ * Coming back from a subpage via `← cd ~` is not, and replaying there would
+ * make the site feel like it forgot you were already here.
+ *
+ * The header prompt is the exception: it reads as "take me home", so it asks
+ * for a replay explicitly.
+ *
+ * `played` lives for the lifetime of the module, which is the lifetime of one
+ * page load — so it resets on refresh without anything having to clear it.
+ */
+export function createIntroGate() {
+	let played = false;
+	let replayRequested = false;
+
+	return {
+		/** True at most once per page load, plus once per explicit replay request. */
+		claim(): boolean {
+			if (!played) {
+				played = true;
+				return true;
+			}
+			if (replayRequested) {
+				replayRequested = false;
+				return true;
+			}
+			return false;
+		},
+
+		/** Ask for the next arrival at the home page to play the sequence. */
+		requestReplay() {
+			replayRequested = true;
+		}
+	};
+}
+
+export const intro = createIntroGate();

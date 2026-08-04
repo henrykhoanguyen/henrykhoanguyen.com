@@ -9,7 +9,7 @@
 	import SkillFilter from '$lib/components/SkillFilter.svelte';
 	import Hint from '$lib/components/Hint.svelte';
 	import type { DirectoryRow } from '$lib/components/directory.js';
-	import { FINAL, next, reached, stateFor, type Step } from '$lib/components/boot.js';
+	import { FINAL, intro, next, reached, stateFor, type Step } from '$lib/components/boot.js';
 	import { experienceRow, projectRow } from '$lib/content/rows.js';
 	import { isDeadSpaceClick } from '$lib/components/outside-click.js';
 	import { boot } from '$lib/components/boot-state.svelte.js';
@@ -25,11 +25,21 @@
 		order and simply are not present yet, so each arrival shifts the rest down
 		on its own.
 
-		Seeded from `browser`: during prerender the sequence starts finished, so the
-		HTML ships complete and the page is fully readable with JavaScript disabled
-		or before hydration. On the client it starts at the beginning.
+		Three conditions have to hold to play, and all three are known here rather
+		than in onMount — deciding later would render the finished page and then
+		empty it, which reads as a flicker.
+
+		During prerender there is no browser, so the HTML ships complete and works
+		with JavaScript disabled. Reduced motion skips it outright. And the gate
+		allows it once per page load, or when the header prompt asks for a replay —
+		so `← cd ~` from a subpage returns you to a page that is already there.
 	*/
-	let step = $state<Step>(browser ? 'skillsCommand' : FINAL);
+	const prefersReducedMotion =
+		browser && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	let step = $state<Step>(
+		browser && !prefersReducedMotion && intro.claim() ? 'skillsCommand' : FINAL
+	);
 
 	const advance = (to: Step) => {
 		if (step !== FINAL) step = to;
@@ -64,10 +74,7 @@
 	});
 
 	onMount(() => {
-		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-			finish();
-			return;
-		}
+		if (step === FINAL) return;
 
 		/*
 			Anyone who does not want to wait skips the whole thing. A recruiter on

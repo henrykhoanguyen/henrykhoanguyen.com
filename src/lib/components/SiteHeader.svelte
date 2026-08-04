@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { palette } from './palette-state.svelte.js';
 	import { promptFor } from './prompt.js';
+	import { intro } from './boot.js';
 
 	/*
 		Three links fit on the narrowest phone, so there is no drawer or hamburger.
@@ -37,7 +38,7 @@
 		also the only part that changes as you move around, so it gets the reading
 		colour rather than the accent.
 	-->
-	<a href={resolve('/')} class="no-underline hover:underline">
+	<a href={resolve('/')} class="no-underline hover:underline" onclick={() => intro.requestReplay()}>
 		<span class="text-phosphor">{prompt.user}@{prompt.host}</span>
 		<span class="text-phosphor-text">{prompt.cwd}</span>
 	</a>

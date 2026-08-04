@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FINAL, indexOf, next, reached, STEPS, stateFor } from './boot.js';
+import { createIntroGate, FINAL, indexOf, next, reached, STEPS, stateFor } from './boot.js';
 import type { Step } from './boot.js';
 
 describe('the sequence', () => {
@@ -87,5 +87,51 @@ describe('next', () => {
 		let step: Step = STEPS[0];
 		for (let i = 0; i < STEPS.length * 2; i++) step = next(step);
 		expect(step).toBe(FINAL);
+	});
+});
+
+describe('the intro gate', () => {
+	it('plays on a fresh page load', () => {
+		expect(createIntroGate().claim()).toBe(true);
+	});
+
+	it('does not play again on a later arrival', () => {
+		// Returning home via `← cd ~` should find the page already there rather
+		// than watching it rebuild itself.
+		const gate = createIntroGate();
+		gate.claim();
+		expect(gate.claim()).toBe(false);
+	});
+
+	it('plays when the header prompt asks for a replay', () => {
+		const gate = createIntroGate();
+		gate.claim();
+		gate.requestReplay();
+		expect(gate.claim()).toBe(true);
+	});
+
+	it('spends the replay request, so the arrival after it is quiet', () => {
+		const gate = createIntroGate();
+		gate.claim();
+		gate.requestReplay();
+		gate.claim();
+		expect(gate.claim()).toBe(false);
+	});
+
+	it('does not stack repeated replay requests', () => {
+		const gate = createIntroGate();
+		gate.claim();
+		gate.requestReplay();
+		gate.requestReplay();
+		expect(gate.claim()).toBe(true);
+		expect(gate.claim()).toBe(false);
+	});
+
+	it('gives each page load its own gate', () => {
+		// `played` lives for the lifetime of the module, so a refresh starts over
+		// without anything having to reset it.
+		const first = createIntroGate();
+		first.claim();
+		expect(createIntroGate().claim()).toBe(true);
 	});
 });
