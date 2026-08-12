@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HOST, promptFor } from './prompt.js';
+import { HOST, promptFor } from '$lib/components/prompt.js';
 
 const render = (path: string) => {
 	const { user, host, cwd } = promptFor(path);

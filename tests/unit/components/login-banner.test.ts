@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { formatLoginTime, readAndRecordVisit, LAST_VISIT_KEY } from './login-banner.js';
+import {
+	formatLoginTime,
+	readAndRecordVisit,
+	LAST_VISIT_KEY
+} from '$lib/components/login-banner.js';
 
 function fakeStorage(initial: Record<string, string> = {}) {
 	const store = { ...initial };

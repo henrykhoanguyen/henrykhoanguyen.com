@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { aboutFrontmatter, experienceFrontmatter, projectFrontmatter, validate } from './schema.js';
+import {
+	aboutFrontmatter,
+	experienceFrontmatter,
+	projectFrontmatter,
+	validate
+} from '$lib/content/schema.js';
 
 const validProject = {
 	title: 'Retail data platform',

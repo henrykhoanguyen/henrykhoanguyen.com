@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EXIT_KEYWORDS, LOGOUT_COMMAND, LOGOUT_LINES } from './logout.js';
+import { EXIT_KEYWORDS, LOGOUT_COMMAND, LOGOUT_LINES } from '$lib/components/logout.js';
 
 describe('the logout sequence', () => {
 	it('keeps the command out of the output lines', () => {

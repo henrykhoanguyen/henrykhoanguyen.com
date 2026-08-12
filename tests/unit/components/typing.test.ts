@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { keystrokeDelay } from './typing.js';
+import { keystrokeDelay } from '$lib/components/typing.js';
 
 describe('keystrokeDelay', () => {
 	// Injected randomness keeps these deterministic.

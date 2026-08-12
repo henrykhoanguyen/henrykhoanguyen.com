@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { createIntroGate, FINAL, indexOf, next, reached, STEPS, stateFor } from './boot.js';
-import type { Step } from './boot.js';
+import {
+	createIntroGate,
+	FINAL,
+	indexOf,
+	next,
+	reached,
+	STEPS,
+	stateFor
+} from '$lib/components/boot.js';
+import type { Step } from '$lib/components/boot.js';
 
 describe('the sequence', () => {
 	it('assembles bottom-up: skills, experiences, projects, then the hero', () => {

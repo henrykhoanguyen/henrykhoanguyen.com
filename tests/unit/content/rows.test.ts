@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { experienceRow, projectRow } from './rows.js';
-import type { Project } from './schema.js';
+import { experienceRow, projectRow } from '$lib/content/rows.js';
+import type { Project } from '$lib/content/schema.js';
 
 const project: Project = {
 	title: 'Retail data platform',

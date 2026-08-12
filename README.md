@@ -92,6 +92,10 @@ listings and the stack filter.
 
 ## Tests
 
+Both suites live under `tests/` — `tests/unit/` mirrors the `src/lib/` tree it
+covers, and `tests/e2e/` holds the Playwright suite. Nothing under `src/` is a
+test file.
+
 Unit tests cover the content layer, which is where the logic is: sorting,
 grouping, slugification, frontmatter validation, and the colour tokens' contrast
 ratios. They are fast and need no browser.

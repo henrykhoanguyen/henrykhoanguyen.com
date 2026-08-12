@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { filterItems, isAction, moveSelection, withGroupHeadings } from './palette.js';
-import { EXIT_KEYWORDS } from './logout.js';
-import type { PaletteItem } from './palette.js';
+import {
+	filterItems,
+	isAction,
+	moveSelection,
+	withGroupHeadings
+} from '$lib/components/palette.js';
+import { EXIT_KEYWORDS } from '$lib/components/logout.js';
+import type { PaletteItem } from '$lib/components/palette.js';
 
 const items: PaletteItem[] = [
 	{ label: 'Home', href: '/', group: 'pages' },

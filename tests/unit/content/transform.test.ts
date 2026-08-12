@@ -12,8 +12,8 @@ import {
 	stripFrontmatter,
 	tagFromSlug,
 	tagSlug
-} from './transform.js';
-import type { Experience, Project, ProjectFrontmatter } from './schema.js';
+} from '$lib/content/transform.js';
+import type { Experience, Project, ProjectFrontmatter } from '$lib/content/schema.js';
 
 function project(overrides: Partial<Project> = {}): Project {
 	return {

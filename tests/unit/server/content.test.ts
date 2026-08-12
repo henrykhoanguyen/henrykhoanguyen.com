@@ -8,7 +8,7 @@ import {
 	getProjects,
 	getProjectsByYear,
 	getStackTags
-} from './content.js';
+} from '$lib/server/content.js';
 
 /**
  * Integration coverage for the glob wiring.

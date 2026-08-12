@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
 	webServer: { command: 'npm run build && npm run preview', port: 4173 },
+	testDir: './tests/e2e',
 	testMatch: '**/*.e2e.{ts,js}',
 
 	/*
@@ -14,7 +15,11 @@ export default defineConfig({
 		the thing being tested.
 
 		The tests that are actually about the animation opt back in with
-		`test.use({ reducedMotion: 'no-preference' })`.
+		`test.use({ contextOptions: { reducedMotion: 'no-preference' } })`.
+
+		It goes under `contextOptions` because Playwright 1.62 dropped
+		`reducedMotion` from the top-level test options — set there it is accepted
+		and then ignored, which is worse than an error.
 	*/
-	use: { reducedMotion: 'reduce' }
+	use: { contextOptions: { reducedMotion: 'reduce' } }
 });

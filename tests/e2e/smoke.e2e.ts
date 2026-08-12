@@ -395,7 +395,7 @@ test.describe('skills', () => {
 
 test.describe('the intro', () => {
 	// The only tests that want the animation, so the only ones that turn it back on.
-	test.use({ reducedMotion: 'no-preference' });
+	test.use({ contextOptions: { reducedMotion: 'no-preference' } });
 
 	test('does not replay when returning home from a subpage', async ({ page }) => {
 		await page.goto('/');

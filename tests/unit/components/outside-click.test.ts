@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { isDeadSpaceClick } from './outside-click.js';
+import { isDeadSpaceClick } from '$lib/components/outside-click.js';
 
 /**
  * The DOM is faked rather than rendered: the only behaviour here is "what did

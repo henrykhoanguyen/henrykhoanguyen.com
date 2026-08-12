@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { tokens, textTokens } from './tokens.js';
-import { AA_LARGE, AA_NORMAL, contrastRatio, parseHex, relativeLuminance } from './contrast.js';
+import { tokens, textTokens } from '$lib/styles/tokens.js';
+import {
+	AA_LARGE,
+	AA_NORMAL,
+	contrastRatio,
+	parseHex,
+	relativeLuminance
+} from '$lib/styles/contrast.js';
 
 describe('contrast maths', () => {
 	it('parses shorthand and longhand hex identically', () => {

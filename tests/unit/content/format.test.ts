@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, formatEnd, formatYear } from './format.js';
+import { formatDate, formatEnd, formatYear } from '$lib/content/format.js';
 
 describe('formatDate', () => {
 	it('renders month and year when the source has a month', () => {
