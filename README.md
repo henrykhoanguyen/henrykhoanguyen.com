@@ -115,3 +115,5 @@ animation opt back in.
 | `docs/TODO.md`            | Known gaps and deferred work                 |
 | `docs/superpowers/specs/` | The design spec this was built from          |
 | `docs/superpowers/plans/` | The implementation plan                      |
+
+Source of truth: self-hosted Forgejo; GitHub is a push mirror.
