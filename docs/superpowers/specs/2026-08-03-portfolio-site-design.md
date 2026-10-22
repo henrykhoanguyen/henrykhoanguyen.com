@@ -23,17 +23,17 @@ Explicit non-goals: no blog, no newsletter, no CMS, no analytics dashboard, no s
 
 ## Stack
 
-| Concern | Choice |
-| --- | --- |
-| Framework | SvelteKit 2, Svelte 5 (runes), TypeScript |
-| Markdown | mdsvex 0.12.x |
-| Styling | Tailwind v4 (CSS `@theme` config — no `tailwind.config.js`) |
-| Components | shadcn-svelte (Svelte 5 / Tailwind v4 line) |
-| Adapter | `@sveltejs/adapter-static` |
-| Validation | Zod |
-| Highlighting | Shiki, via mdsvex |
-| Hosting | Cloudflare Pages, git-push deploys, custom domain `henrykhoanguyen.com` |
-| Testing | Vitest, Playwright, svelte-check, ESLint, Prettier |
+| Concern      | Choice                                                                  |
+| ------------ | ----------------------------------------------------------------------- |
+| Framework    | SvelteKit 2, Svelte 5 (runes), TypeScript                               |
+| Markdown     | mdsvex 0.12.x                                                           |
+| Styling      | Tailwind v4 (CSS `@theme` config — no `tailwind.config.js`)             |
+| Components   | shadcn-svelte (Svelte 5 / Tailwind v4 line)                             |
+| Adapter      | `@sveltejs/adapter-static`                                              |
+| Validation   | Zod                                                                     |
+| Highlighting | Shiki, via mdsvex                                                       |
+| Hosting      | Cloudflare Pages, git-push deploys, custom domain `henrykhoanguyen.com` |
+| Testing      | Vitest, Playwright, svelte-check, ESLint, Prettier                      |
 
 Tailwind v4 keeps its config in CSS. Any shadcn-svelte guide that edits `tailwind.config.js` is out of date and must not be followed.
 
@@ -56,37 +56,37 @@ Defined in `src/lib/content/schema.ts` using Zod.
 
 **Project**
 
-| Field | Type | Required | Notes |
-| --- | --- | --- | --- |
-| `title` | string | yes | Display name, e.g. `stream-ingest` |
-| `summary` | string | yes | One line, shown in the directory listing |
-| `stack` | string[] | yes | Shown right-aligned; also drives filtering |
-| `date` | ISO date string | yes | Sort key; year drives the gutter grouping |
-| `featured` | boolean | no, default `false` | Controls appearance on `/` |
-| `repo` | URL | no | |
-| `demo` | URL | no | |
+| Field      | Type            | Required            | Notes                                      |
+| ---------- | --------------- | ------------------- | ------------------------------------------ |
+| `title`    | string          | yes                 | Display name, e.g. `stream-ingest`         |
+| `summary`  | string          | yes                 | One line, shown in the directory listing   |
+| `stack`    | string[]        | yes                 | Shown right-aligned; also drives filtering |
+| `date`     | ISO date string | yes                 | Sort key; year drives the gutter grouping  |
+| `featured` | boolean         | no, default `false` | Controls appearance on `/`                 |
+| `repo`     | URL             | no                  |                                            |
+| `demo`     | URL             | no                  |                                            |
 
 **Experience**
 
-| Field | Type | Required | Notes |
-| --- | --- | --- | --- |
-| `company` | string | yes | |
-| `role` | string | yes | |
-| `start` | ISO date string | yes | Sort key, descending |
-| `end` | ISO date string or `"present"` | yes | |
-| `highlights` | string[] | yes | Short outcome-focused bullets |
-| `stack` | string[] | no | |
+| Field        | Type                           | Required | Notes                         |
+| ------------ | ------------------------------ | -------- | ----------------------------- |
+| `company`    | string                         | yes      |                               |
+| `role`       | string                         | yes      |                               |
+| `start`      | ISO date string                | yes      | Sort key, descending          |
+| `end`        | ISO date string or `"present"` | yes      |                               |
+| `highlights` | string[]                       | yes      | Short outcome-focused bullets |
+| `stack`      | string[]                       | no       |                               |
 
 **About / site metadata**
 
 `about.md` carries site-level identity in its frontmatter, so no separate config file exists and the "markdown for everything" rule holds. Its body is the long-form bio on `/about`.
 
-| Field | Type | Required | Notes |
-| --- | --- | --- | --- |
-| `name` | string | yes | Used in the hero and `<title>` |
-| `tagline` | string | yes | The one-line positioning statement under the hero |
-| `skills` | string[] | yes | Rendered on `/about` |
-| `links` | array of `{ label, url }` | yes | Contact and social links in the footer. LinkedIn stands in for the resume |
+| Field     | Type                      | Required | Notes                                                                     |
+| --------- | ------------------------- | -------- | ------------------------------------------------------------------------- |
+| `name`    | string                    | yes      | Used in the hero and `<title>`                                            |
+| `tagline` | string                    | yes      | The one-line positioning statement under the hero                         |
+| `skills`  | string[]                  | yes      | Rendered on `/about`                                                      |
+| `links`   | array of `{ label, url }` | yes      | Contact and social links in the footer. LinkedIn stands in for the resume |
 
 There is no `resume` field. The site hosts no resume PDF — see Resume handling below.
 
@@ -99,7 +99,7 @@ At least one project file and one experience file must exist for the build to su
 Index pages read frontmatter only:
 
 ```ts
-import.meta.glob('/src/content/projects/*.md', { eager: true, import: 'metadata' })
+import.meta.glob('/src/content/projects/*.md', { eager: true, import: 'metadata' });
 ```
 
 Case study bodies are dynamically imported on the detail route, so no project body is bundled into the home page.
@@ -116,12 +116,12 @@ If a project has no body and no `repo`, the schema fails the build. A row that l
 
 ## Routes
 
-| Route | Contents |
-| --- | --- |
-| `/` | Hero, featured projects, full experience timeline, contact links |
-| `/projects` | All projects, grouped by year, filterable by stack tag |
-| `/projects/[slug]` | Case study. Prerendered only for projects with bodies |
-| `/about` | Longer bio, skills, contact and LinkedIn |
+| Route              | Contents                                                         |
+| ------------------ | ---------------------------------------------------------------- |
+| `/`                | Hero, featured projects, full experience timeline, contact links |
+| `/projects`        | All projects, grouped by year, filterable by stack tag           |
+| `/projects/[slug]` | Case study. Prerendered only for projects with bodies            |
+| `/about`           | Longer bio, skills, contact and LinkedIn                         |
 
 Experience lives on `/` rather than its own route. With a handful of roles a dedicated page would read as empty, and keeping it on the home page holds the recruiter's skim path to one scroll.
 
@@ -147,13 +147,13 @@ Dark only. Green phosphor has no honest light-mode equivalent, so there is no th
 
 Green is a three-stop scale, not a single color. A single-green interface is period-accurate and genuinely hard to read past a few lines.
 
-| Token | Value | Use |
-| --- | --- | --- |
-| `--bg` | `#0a0f0a` | Page background |
-| `--green-bright` | `#3bf75e` | Prompts, links, caret, focus rings |
-| `--green-text` | `#d3f9d8` | Primary text |
-| `--green-dim` | `#6b9a72` | Metadata, dates, stack tags, secondary nav |
-| `--rule` | `#1e3a22` | Hairline dividers |
+| Token            | Value     | Use                                        |
+| ---------------- | --------- | ------------------------------------------ |
+| `--bg`           | `#0a0f0a` | Page background                            |
+| `--green-bright` | `#3bf75e` | Prompts, links, caret, focus rings         |
+| `--green-text`   | `#d3f9d8` | Primary text                               |
+| `--green-dim`    | `#6b9a72` | Metadata, dates, stack tags, secondary nav |
+| `--rule`         | `#1e3a22` | Hairline dividers                          |
 
 All three text stops must meet WCAG AA against `--bg`. Contrast is verified in CI, not by eye.
 
@@ -257,6 +257,7 @@ Sourced from the LinkedIn profile export (authoritative for dates and titles), t
   - Cut service response times from minutes to 20–50ms by designing precomputed BigQuery views and tables in place of on-demand queries.
 
   Request volume — hundreds per day — is deliberately omitted. It is a weak figure that invites the wrong question, and it misstates why the work matters: the services are significant for their decision scope and latency, not their throughput. Scale is expressed through row counts and store coverage instead.
+
 - General Motors, Austin TX — Software Engineer, Strategic Incubation Office, Jan 2021 – May 2024. Java, Akka, and Apache Pulsar streaming supporting communication for over 13 million vehicles. Redis and Cassandra to cut microservice latency. Azure CI/CD with Kubernetes and Docker, +5% delivery efficiency. Spring Boot streaming features for cross-functional testing, −25% time to production readiness. Ubuntu Linux infrastructure build and migration. Incident-handling training contributing to four nines.
 - UCI Medical Center, Irvine CA — Web Developer, Oct 2020 – Jan 2021. Radiology department site on PHP and WordPress; A/B tested layouts.
 - UC Irvine — BS Computer Science.
@@ -267,11 +268,11 @@ Graduation resolved: coursework completed late 2019, ceremony March 2020. The si
 
 **Projects at launch** — four written case studies. Three have no repo link. Ordered as they appear on the site, current work first.
 
-1. *Vehicle data streaming platform* (GM) — Java, Akka, and Apache Pulsar carrying telemetry for 13 million vehicles. Redis in front of Cassandra to cut latency. Metrics, dashboards, and alerting supporting four-nines operation.
-2. *Spring Boot streaming test harness* (GM) — UDP streaming and Avro-over-Pulsar extending end-to-end test coverage across services. Azure CI/CD with Docker into Kubernetes. 500,000 messages per second with configurable throughput; cut time to production readiness 25%.
-3. *German Football Data Analyzer* (personal) — the one public repo worth keeping. Angular, Node, Express, MongoDB, CSV parsing into a REST API. The sole open-source entry.
+1. _Vehicle data streaming platform_ (GM) — Java, Akka, and Apache Pulsar carrying telemetry for 13 million vehicles. Redis in front of Cassandra to cut latency. Metrics, dashboards, and alerting supporting four-nines operation.
+2. _Spring Boot streaming test harness_ (GM) — UDP streaming and Avro-over-Pulsar extending end-to-end test coverage across services. Azure CI/CD with Docker into Kubernetes. 500,000 messages per second with configurable throughput; cut time to production readiness 25%.
+3. _German Football Data Analyzer_ (personal) — the one public repo worth keeping. Angular, Node, Express, MongoDB, CSV parsing into a REST API. The sole open-source entry.
 
-4. *Retail data platform* (H-E-B) — **the lead case study.** Oracle to BigQuery on Pub/Sub where no streaming path existed, feeding services for products, pricing, promotions, and forecasting across every Texas store. Two-act narrative: get the data across reliably (batch jobs exceeding an hour or failing, resolved through source-side partitioning and incremental loads to roughly 20 minutes with duplicates eliminated), then serve it fast (precomputed views and tables replacing on-demand queries, minutes to 20–50ms).
+4. _Retail data platform_ (H-E-B) — **the lead case study.** Oracle to BigQuery on Pub/Sub where no streaming path existed, feeding services for products, pricing, promotions, and forecasting across every Texas store. Two-act narrative: get the data across reliably (batch jobs exceeding an hour or failing, resolved through source-side partitioning and incremental loads to roughly 20 minutes with duplicates eliminated), then serve it fast (precomputed views and tables replacing on-demand queries, minutes to 20–50ms).
 
 This is the only warehouse-side material in the inventory and covers the data engineering half of the target roles that the GM streaming work does not reach. It is also current, which matters — without it the strongest work on the site ends in 2024.
 
