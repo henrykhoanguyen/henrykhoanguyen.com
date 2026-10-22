@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      # .nvmrc is what Cloudflare Pages reads when it builds the deploy, so
+      # reading it here keeps CI on the same Node as production.
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check
+      - run: npm run test:unit -- --run
+      - run: npm run build
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Not `npm run test:e2e`: that calls `playwright install` without
+      # --with-deps, which downloads the browser into a container missing the
+      # shared libraries it needs. Chromium only — playwright.config.ts
+      # defines no projects, so that is all the suite uses.
+      - run: npx playwright install --with-deps chromium
+
+      # Playwright starts the preview server itself (webServer in the config),
+      # building first.
+      - run: npx playwright test
