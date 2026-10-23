@@ -95,7 +95,7 @@ Workers & Pages → Create → **Pages** → Connect to Git.
 | Build command          | `npm run build`                            |
 | Build output directory | `build`                                    |
 | Root directory         | _(leave blank)_                            |
-| Node version           | 22 — read from `.nvmrc`, already committed |
+| Node version           | 24 — read from `.nvmrc`, already committed |
 
 **Do not pick the SvelteKit preset.** It sets the output directory to
 `.svelte-kit/cloudflare`, which is where `adapter-cloudflare` writes. This site
