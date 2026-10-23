@@ -36,6 +36,36 @@ function watchForErrors(page: Page): string[] {
 }
 
 /**
+ * Navigates, then waits for the page to be interactive rather than merely drawn.
+ *
+ * `page.goto` resolves when the document has loaded, which on a prerendered
+ * site is well before SvelteKit has hydrated and attached a single handler.
+ * Everything up to that point is static HTML that looks finished and does
+ * nothing.
+ *
+ * That window is what made this suite flaky. A keystroke is delivered once —
+ * `keyboard.press('Control+k')` on an unhydrated page is dispatched to a window
+ * nobody is listening on and is simply gone, and no amount of waiting
+ * afterwards brings it back. The test then sits out its timeout for a dialog
+ * that was never asked to open, and reports `element(s) not found` as though
+ * the palette were broken. `hover()` and `click()` lose their handlers the same
+ * way; they only look safer because Playwright retries finding the element, not
+ * the effect of touching it.
+ *
+ * The login banner is the signal, and an honest one: it is rendered from
+ * `onMount` with a per-visitor timestamp, so it is absent from the prerendered
+ * HTML by design and the moment it appears is the moment this page's JavaScript
+ * is running. The text covers both the first-visit and returning lines.
+ *
+ * Tests that only read prerendered content do not need this and still use
+ * `page.goto` directly.
+ */
+async function gotoHydrated(page: Page, path: string) {
+	await page.goto(path);
+	await expect(page.getByText(/on console/)).toBeVisible();
+}
+
+/**
  * Opens the palette, waits for it, runs a query, and activates the top result.
  *
  * Typing before the dialog exists sends the keystrokes nowhere and the Enter
@@ -161,7 +191,7 @@ test.describe('stack filter', () => {
 
 test.describe('command palette', () => {
 	test('opens with the keyboard and jumps to a project', async ({ page }) => {
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 		await page.keyboard.press('ControlOrMeta+k');
 
 		const palette = page.getByRole('dialog', { name: 'Jump to' });
@@ -174,7 +204,7 @@ test.describe('command palette', () => {
 	});
 
 	test('closes on Escape without navigating', async ({ page }) => {
-		await page.goto('/about');
+		await gotoHydrated(page, '/about');
 		await page.keyboard.press('ControlOrMeta+k');
 		await expect(page.getByRole('dialog', { name: 'Jump to' })).toBeVisible();
 
@@ -184,8 +214,12 @@ test.describe('command palette', () => {
 	});
 
 	test('says so when nothing matches', async ({ page }) => {
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 		await page.keyboard.press('ControlOrMeta+k');
+		// The dialog takes the focus with it, so typing before it is up puts the
+		// query somewhere other than the search box.
+		await expect(page.getByRole('dialog', { name: 'Jump to' })).toBeVisible();
+
 		await page.keyboard.type('zzzznotathing');
 		await expect(page.getByText(/no matches found/)).toBeVisible();
 	});
@@ -194,10 +228,11 @@ test.describe('command palette', () => {
 		// A centred dialog re-centres itself as the list shrinks, dragging the
 		// input down while you are still typing into it. The dialog is anchored
 		// from the top so only its bottom edge moves.
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 		await page.keyboard.press('ControlOrMeta+k');
 
 		const input = page.getByRole('textbox', { name: 'Search pages and projects' });
+		await expect(input).toBeVisible();
 		const before = await input.boundingBox();
 
 		await page.keyboard.type('zzzznotathing');
@@ -208,8 +243,10 @@ test.describe('command palette', () => {
 	});
 
 	test('finds contact links by their address, not just their label', async ({ page }) => {
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 		await page.keyboard.press('ControlOrMeta+k');
+		await expect(page.getByRole('dialog', { name: 'Jump to' })).toBeVisible();
+
 		await page.keyboard.type('linkedin.com');
 		await expect(page.getByRole('link', { name: /LinkedIn/ })).toBeVisible();
 	});
@@ -319,7 +356,7 @@ test.describe('skills', () => {
 			.first();
 
 	test('hovering a skill dims every row that does not use it', async ({ page }) => {
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 
 		await page.getByRole('button', { name: 'bigquery' }).hover();
 
@@ -329,7 +366,7 @@ test.describe('skills', () => {
 	});
 
 	test('the highlight releases when the pointer leaves', async ({ page }) => {
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 
 		await page.getByRole('button', { name: 'bigquery' }).hover();
 		await expect(rowFor(page, 'UCI')).toHaveClass(/opacity-30/);
@@ -340,7 +377,7 @@ test.describe('skills', () => {
 	});
 
 	test('clicking pins a skill so it survives the pointer leaving', async ({ page }) => {
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 
 		const php = page.getByRole('button', { name: 'php' });
 		await php.click();
@@ -350,13 +387,23 @@ test.describe('skills', () => {
 		await expect(rowFor(page, 'UCI')).not.toHaveClass(/opacity-30/);
 		await expect(rowFor(page, 'H-E-B')).toHaveClass(/opacity-30/);
 
+		/*
+			Clicking again releases the pin — but the click leaves the pointer on
+			the chip, and a hover outranks the pin for as long as it lasts, which
+			is what makes browsing over a pinned skill a peek rather than a mode
+			change. So the rows stay dimmed until the pointer moves off, and
+			asserting before it does was testing for the absence of a deliberate
+			behaviour.
+		*/
 		await php.click();
 		await expect(php).toHaveAttribute('aria-pressed', 'false');
+
+		await page.getByRole('heading', { level: 1 }).hover();
 		await expect(rowFor(page, 'H-E-B')).not.toHaveClass(/opacity-30/);
 	});
 
 	test('clicking dead space clears the pin', async ({ page }) => {
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 
 		const php = page.getByRole('button', { name: 'php' });
 		await php.click();
@@ -370,7 +417,7 @@ test.describe('skills', () => {
 		// A chip that highlights nothing would be a broken affordance. The skill
 		// list is derived from the same stacks that drive dimming, so every one
 		// of them must leave at least one row lit.
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 
 		const skills = page.locator('li button[aria-pressed]');
 		const count = await skills.count();
@@ -385,7 +432,7 @@ test.describe('skills', () => {
 	});
 
 	test('announces the match count for screen readers', async ({ page }) => {
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 
 		await page.getByRole('button', { name: 'bigquery' }).hover();
 		// Dimming is visual only, so the count carries the same information.
@@ -445,7 +492,7 @@ test.describe('the intro', () => {
 
 test.describe('exit', () => {
 	test('quitting replaces the page with a logout screen', async ({ page }) => {
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 		await openPalette(page, ':q!');
 
 		await expect(page.getByText('logout')).toBeVisible();
@@ -455,7 +502,7 @@ test.describe('exit', () => {
 	});
 
 	test('takes the whole site with it', async ({ page }) => {
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 		await openPalette(page, 'exit');
 
 		await expect(page.getByRole('navigation', { name: 'Main' })).not.toBeVisible();
@@ -463,7 +510,7 @@ test.describe('exit', () => {
 	});
 
 	test('restores the site', async ({ page }) => {
-		await page.goto('/');
+		await gotoHydrated(page, '/');
 		await openPalette(page, 'quit');
 		await page.keyboard.press('Space');
 
